@@ -16,7 +16,7 @@ from backend.base.logging import LOGGER
 from backend.implementations.indexer_client_manager import (BaseIndexerClient,
                                                             IndexerClients)
 
-SEARCH_TIMEOUT_SECONDS = 120
+SEARCH_TIMEOUT_SECONDS = 60
 "Prowlarr asks every one of its indexers; a slow one should not cut the rest off"
 COMICS_CATEGORY = 7030
 MAX_RESULTS = 100
@@ -124,24 +124,20 @@ class ProwlarrIndexer(BaseIndexerClient):
             return None
 
     async def search(self, query: SearchQuery) -> QueryResult:
-        # Only the comics category first: Prowlarr then asks the indexers that
-        # have comics and answers in seconds instead of minutes, with results
-        # that are about comics. If that finds nothing, everything is searched.
-        for categories in (COMICS_CATEGORY, None):
-            params: Dict[str, Any] = {
-                "query": query["query"],
-                "type": "search",
-                "limit": MAX_RESULTS
-            }
-            if categories is not None:
-                params["categories"] = categories
-
-            answer = await self.__request(params)
-            results = parse_results(answer, self._id, self._title)
-            if results:
-                return QueryResult(results, next_page_available=False)
-
-        return QueryResult([], next_page_available=False)
+        # Only the comics category: Prowlarr then asks the indexers that have
+        # comics and answers in about ten seconds, with results that are about
+        # comics. Searching every category takes over a minute per query and
+        # mostly returns films and shows.
+        answer = await self.__request({
+            "query": query["query"],
+            "type": "search",
+            "categories": COMICS_CATEGORY,
+            "limit": MAX_RESULTS
+        })
+        return QueryResult(
+            parse_results(answer, self._id, self._title),
+            next_page_available=False
+        )
 
     async def discover(self, last_check: datetime) -> List[SearchResultData]:
         # An empty query gives the newest releases, like an RSS feed

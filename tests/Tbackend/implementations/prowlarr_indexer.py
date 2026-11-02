@@ -46,8 +46,7 @@ class ParseResultsTests(unittest.TestCase):
 
 
 class SearchCategoryTests(unittest.IsolatedAsyncioTestCase):
-    async def _search(self, answers):
-        from unittest.mock import AsyncMock, patch
+    async def _search(self, answer):
         from backend.implementations.indexer_clients.torrent.Prowlarr import \
             ProwlarrIndexer
         indexer = object.__new__(ProwlarrIndexer)
@@ -56,29 +55,24 @@ class SearchCategoryTests(unittest.IsolatedAsyncioTestCase):
 
         async def fake_request(params):
             calls.append(dict(params))
-            return answers.pop(0)
+            return answer
 
         indexer._ProwlarrIndexer__request = fake_request
-        result = await indexer.search({'query': 'Saga', 'page': 1,
-                                       'total_available_variations': 1})
-        return result, calls
+        found = await indexer.search({'query': 'Saga', 'page': 1,
+                                      'total_available_variations': 1})
+        return found, calls
 
-    async def test_comics_category_first_and_no_second_request_when_found(self):
-        found, calls = await self._search([[result(title='Saga 001')]])
+    async def test_only_the_comics_category_is_searched_once(self):
+        found, calls = await self._search([result(title='Saga 001')])
         self.assertEqual(len(found.results), 1)
         self.assertEqual(len(calls), 1)
         self.assertEqual(calls[0]['categories'], 7030)
 
-    async def test_falls_back_to_everything_when_nothing_found(self):
-        found, calls = await self._search([[], [result(title='Saga 002')]])
-        self.assertEqual([r['display_title'] for r in found.results], ['Saga 002'])
-        self.assertEqual(len(calls), 2)
-        self.assertNotIn('categories', calls[1])
-
-    async def test_nothing_anywhere(self):
-        found, calls = await self._search([None, None])
-        self.assertEqual(found.results, [])
-        self.assertEqual(len(calls), 2)
+    async def test_nothing_found_does_not_trigger_a_slow_second_search(self):
+        for answer in ([], None):
+            found, calls = await self._search(answer)
+            self.assertEqual(found.results, [])
+            self.assertEqual(len(calls), 1)
 
 
 if __name__ == '__main__':
