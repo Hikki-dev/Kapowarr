@@ -1,57 +1,36 @@
-ARG DISTRO=bookworm
 ARG PYTHON=3.13
 
-FROM python:${PYTHON}-slim-${DISTRO} AS python
-
-# --- Build Stage ---
-FROM rust:slim-${DISTRO} AS builder
-WORKDIR /wheels
-
-# Install Build Dependencies
-RUN --mount=target=/var/lib/apt/lists,type=cache,sharing=private \
-    --mount=target=/var/cache/apt,type=cache,sharing=private \
-    apt-get update && \
-    apt-get install -y --no-install-recommends \
-        build-essential libssl-dev libffi-dev pkg-config
-
-# Copy Python From Python Stage
-COPY --from=python /usr/local /usr/local
-COPY --from=python /usr/lib /usr/lib
-COPY --from=python /lib /lib
-COPY --from=python /etc /etc
-
-# Compile Wheels
-COPY requirements.txt .
-RUN pip3 wheel --wheel-dir=/wheels -r requirements.txt
-
-# --- Runtime Stage ---
-FROM python:${PYTHON}-slim-${DISTRO} AS runtime
+# One stage: every dependency has a ready-made wheel for Intel/AMD and ARM, so nothing is compiled
+FROM python:${PYTHON}-slim-bookworm
 WORKDIR /app
 
-# Install Runtime Dependencies
-RUN --mount=target=/var/lib/apt/lists,type=cache,sharing=private \
-    --mount=target=/var/cache/apt,type=cache,sharing=private \
-    apt-get update && \
-    apt-get full-upgrade -y && \
-    apt-get autoremove -y
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    MALLOC_ARENA_MAX=2 \
+    PUID=0 \
+    PGID=0 \
+    TZ=UTC
+# MALLOC_ARENA_MAX=2: many threads would otherwise each keep their own memory pool, which only grows
+
 COPY --from=tianon/gosu /gosu /usr/local/bin/
 
-# Install Compiled Wheels
-RUN --mount=from=builder,source=/wheels,target=/wheels \
-    --mount=type=cache,target=/root/.cache/pip,sharing=private \
-    pip3 install --no-index --find-links=/wheels -r /wheels/requirements.txt
+COPY requirements.txt .
+RUN pip3 install -r requirements.txt
 
 RUN groupadd -g 1000 kapowarr && \
     useradd -u 1000 -g kapowarr -d /nonexistent -M -s /bin/bash kapowarr && \
     mkdir -p /app/db /app/logs /app/temp_downloads
 
 COPY --chmod=755 . .
-
-ENV PUID=0 \
-    PGID=0 \
-    TZ=UTC
+RUN python3 -m compileall -q /app/backend /app/frontend /app/Kapowarr.py
 
 EXPOSE 5656
+
+# Up when the web server accepts connections (works with any URL base)
+HEALTHCHECK --interval=60s --timeout=5s --start-period=90s --retries=3 \
+    CMD python3 -c "import socket; socket.create_connection(('127.0.0.1', 5656), 3).close()"
 
 ENTRYPOINT ["/app/entrypoint.sh"]
 CMD ["python3", "/app/Kapowarr.py", "--LogFolder", "/app/logs"]

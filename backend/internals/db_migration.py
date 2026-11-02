@@ -96,7 +96,54 @@ class DatabaseMigrationHandler:
                 "gc_avoid_large_downloads": False
             }
         )
+
+        # Insert Internet Archive indexer
+        cursor.execute("""
+            INSERT INTO indexer_clients(
+                enabled, download_type, client_type, title, url
+            ) VALUES (1, :download_type, 'Internet Archive',
+                      'Internet Archive', 'https://archive.org');
+            """,
+            {"download_type": DownloadType.DDL}
+        )
         return
+
+    @classmethod
+    def bridge_fork_database(cls, current_version: int) -> int:
+        """Databases of the earlier Hikki-dev copy of Kapowarr are at version
+        46: its own "version 45" step (a MangaDex column) took the number that
+        upstream gave to a different change (a setting on external download
+        clients). Such a database is put back at 45, so that upstream's steps
+        from 45 on run in their own order. The MangaDex column is harmless and
+        stays.
+
+        Args:
+            current_version (int): The version the database says it has.
+
+        Returns:
+            int: The version to migrate from.
+        """
+        if current_version != 46:
+            return current_version
+
+        cursor = get_db()
+        volume_columns = {
+            row[1] for row in cursor.execute("PRAGMA table_info(volumes);")
+        }
+        client_columns = {
+            row[1]
+            for row in cursor.execute(
+                "PRAGMA table_info(external_download_clients);"
+            )
+        }
+        if "mangadex_id" in volume_columns and "enabled" not in client_columns:
+            LOGGER.info(
+                "Database of the earlier Hikki-dev copy found; "
+                "continuing with the upstream migrations from version 45"
+            )
+            return 45
+
+        return current_version
 
     @classmethod
     def migrate(cls) -> None:
@@ -107,7 +154,7 @@ class DatabaseMigrationHandler:
         from backend.internals.settings import Settings
 
         s = Settings()
-        current_db_version = s.sv.database_version
+        current_db_version = cls.bridge_fork_database(s.sv.database_version)
         newest_version = cls.latest_db_version()
 
         if current_db_version > newest_version:
@@ -1207,10 +1254,9 @@ def _migrate_add_forced_file_match_column():
 
 @DatabaseMigrationHandler.register_handler(45)
 def _migrate_add_enabled_option_to_ec():
-    get_db().execute("""
-        ALTER TABLE external_download_clients
-            ADD COLUMN enabled BOOL NOT NULL DEFAULT 1;
-    """)
+    _add_columns_if_missing(
+        "external_download_clients", {"enabled": "BOOL NOT NULL DEFAULT 1"}
+    )
 
     return
 
@@ -1314,12 +1360,77 @@ def _migrate_remove_search_all_task() -> None:
     return
 
 
+def _add_columns_if_missing(table: str, columns: Dict[str, str]) -> None:
+    """Add columns to a table, skipping the ones that are already there. A
+    table that did not exist yet is created by the startup schema with all its
+    current columns, so a later "add column" step must not fail on it."""
+    cursor = get_db()
+    existing = {row[1] for row in cursor.execute(f"PRAGMA table_info({table});")}
+    for name, definition in columns.items():
+        if name not in existing:
+            cursor.execute(f"ALTER TABLE {table} ADD COLUMN {name} {definition};")
+    return
+
+
 @DatabaseMigrationHandler.register_handler(51)
 def _migrate_add_torrent_usenet_indexer_fields() -> None:
-    get_db().executescript("""
-        ALTER TABLE indexer_clients ADD COLUMN api_path VARCHAR(255);
-        ALTER TABLE indexer_clients ADD COLUMN api_key VARCHAR(255);
-        ALTER TABLE indexer_clients ADD COLUMN categories VARCHAR(255);
-    """)
+    _add_columns_if_missing("indexer_clients", {
+        "api_path": "VARCHAR(255)",
+        "api_key": "VARCHAR(255)",
+        "categories": "VARCHAR(255)"
+    })
+
+    return
+
+
+@DatabaseMigrationHandler.register_handler(52)
+def _migrate_add_prowlarr_and_internet_archive_indexers() -> None:
+    cursor = get_db()
+
+    # The earlier Hikki-dev copy kept Prowlarr in two settings. They become a
+    # Prowlarr indexer, and the settings (with the API key) are removed.
+    settings = dict(cursor.execute(
+        """
+        SELECT key, value FROM config
+        WHERE key IN ('prowlarr_base_url', 'prowlarr_api_key');
+        """
+    ))
+    url, api_key = settings.get('prowlarr_base_url'), settings.get('prowlarr_api_key')
+    if url and api_key:
+        has_one = cursor.execute(
+            "SELECT 1 FROM indexer_clients WHERE client_type = 'Prowlarr' LIMIT 1;"
+        ).fetchone()
+        if not has_one:
+            cursor.execute(
+                """
+                INSERT INTO indexer_clients(
+                    enabled, download_type, client_type, title, url, api_key
+                ) VALUES (1, :download_type, 'Prowlarr', 'Prowlarr', :url, :api_key);
+                """,
+                {
+                    "download_type": DownloadType.TORRENT,
+                    "url": url.decode() if isinstance(url, bytes) else str(url),
+                    "api_key": (
+                        api_key.decode() if isinstance(api_key, bytes)
+                        else str(api_key)
+                    )
+                }
+            )
+    cursor.execute(
+        "DELETE FROM config WHERE key IN ('prowlarr_base_url', 'prowlarr_api_key');"
+    )
+
+    if not cursor.execute(
+        "SELECT 1 FROM indexer_clients WHERE client_type = 'Internet Archive' LIMIT 1;"
+    ).fetchone():
+        cursor.execute(
+            """
+            INSERT INTO indexer_clients(
+                enabled, download_type, client_type, title, url
+            ) VALUES (1, :download_type, 'Internet Archive',
+                      'Internet Archive', 'https://archive.org');
+            """,
+            {"download_type": DownloadType.DDL}
+        )
 
     return
