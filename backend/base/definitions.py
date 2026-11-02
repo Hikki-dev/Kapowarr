@@ -582,6 +582,8 @@ class GCDownloadService(BaseEnum):
     "A DDL download link straight from their own servers"
     GETCOMICS_TORRENT = "GetComics (torrent)"
     "A torrent magnet link directly on the webpage"
+    INTERNET_ARCHIVE = "Internet Archive"
+    "A direct file download from archive.org"
 
 
 # autopep8: off
