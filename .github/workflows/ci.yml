@@ -1,10 +1,10 @@
 name: CI
 
-# Every push and pull request runs the tests. A push to master then builds the image for Intel/AMD and ARM
+# Every push and pull request runs the tests. A push to main then builds the image for Intel/AMD and ARM
 # and publishes it to ghcr.io/hikki-dev/kapowarr.
 on:
   push:
-    branches: [master]
+    branches: [main]
   pull_request:
   workflow_dispatch:
 
