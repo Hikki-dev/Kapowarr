@@ -56,11 +56,11 @@ Open `http://your-server:5656`. You need a free [ComicVine key](https://comicvin
 
 ## Coming from an older copy
 
-Back up the database volume, then start this image on the same volume. The database is upgraded on the first start, and the older Prowlarr settings become an indexer. Nothing else needs doing. The original Kapowarr (1.3.x) databases are upgraded the same way.
+Back up the database volume, then start this image on the same volume. The database is upgraded on the first start, and the older Prowlarr settings become an indexer. Nothing else needs doing.
 
 ## Light on your computer
 
-About 100 MB of memory when idle and a 170 MB image. There is no second database server, no browser and nothing compiled when you install. The image is built for Intel/AMD and ARM, so it runs on a Raspberry Pi too, and it tells Docker when it is healthy.
+About 100 MB of memory when idle and a 170 MB image. There is no second database server, no browser and nothing compiled when you install. The image is built for Intel/AMD and ARM (the ARM build is made but not yet run on a real Raspberry Pi), and it tells Docker when it is healthy.
 
 ## Made with care
 
