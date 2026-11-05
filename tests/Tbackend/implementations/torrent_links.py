@@ -51,7 +51,7 @@ class RedirectTests(unittest.TestCase):
         magnet, session = resolve_chain(
             response(status=302, location='https://other.example/f.torrent', ok=False),
             response(torrent_bytes(), 'application/x-bittorrent'))
-        self.assertTrue(magnet.startswith('magnet:?xt=urn:btih:'))
+        self.assertTrue(magnet.startswith('magnet:?xt='))
         self.assertEqual(session.get.call_args_list[1].args[0], 'https://other.example/f.torrent')
 
     def test_relative_redirect(self):
@@ -81,9 +81,24 @@ class RedirectTests(unittest.TestCase):
 
 class TorrentFileToMagnetTests(unittest.TestCase):
     def test_valid(self):
+        from urllib.parse import parse_qs, urlparse
         m = tl.torrent_file_to_magnet(torrent_bytes())
-        self.assertTrue(m.startswith('magnet:?xt=urn:btih:'))
-        self.assertTrue(m.endswith('&dn=Some%20Comic%20001'))
+        self.assertTrue(m.startswith('magnet:?xt='))
+        q = parse_qs(urlparse(m).query)
+        self.assertEqual(q['dn'], ['Some Comic 001'])
+        self.assertEqual(len(q['xt'][0]), len('urn:btih:') + 40)
+        self.assertIn('http://t.example/a', q['tr'])       # the torrent's own tracker
+        self.assertGreater(len(q['tr']), 5)                # plus the usual list
+
+    def test_announce_list_trackers_are_added_once(self):
+        from urllib.parse import parse_qs, urlparse
+        data = bencode({b'announce': b'http://t.example/a',
+                        b'announce-list': [[b'http://t.example/a'], [b'udp://u.example:1/x', b'junk']],
+                        b'info': {b'name': b'N', b'piece length': 16384, b'pieces': b'x' * 20, b'length': 1}})
+        trackers = parse_qs(urlparse(tl.torrent_file_to_magnet(data)).query)['tr']
+        self.assertEqual(trackers.count('http://t.example/a'), 1)
+        self.assertIn('udp://u.example:1/x', trackers)
+        self.assertNotIn('junk', trackers)
 
     def test_garbage(self):
         self.assertIsNone(tl.torrent_file_to_magnet(b'not bencoded'))

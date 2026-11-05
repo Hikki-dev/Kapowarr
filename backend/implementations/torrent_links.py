@@ -10,13 +10,13 @@ to that form here.
 """
 
 from hashlib import sha1
-from typing import Optional
+from typing import List, Optional
 from urllib.parse import quote, urljoin
 
-from bencoding import bencode
+from bencoding import bdecode, bencode
 from requests import RequestException
 
-from backend.base.helpers import Session, get_torrent_info
+from backend.base.helpers import Session, build_magnet_link, get_torrent_info
 from backend.base.logging import LOGGER
 
 TORRENT_CONTENT_TYPES = (
@@ -29,8 +29,29 @@ MAX_TORRENT_FILE_SIZE = 10 * 1024 * 1024
 MAX_REDIRECTS = 5
 
 
+def _trackers(torrent: bytes) -> List[str]:
+    "The tracker addresses a torrent file lists itself, if any"
+    try:
+        meta = bdecode(torrent)
+    except Exception:
+        return []
+    found: List[str] = []
+    announce = meta.get(b"announce")
+    if isinstance(announce, bytes):
+        found.append(announce.decode(errors="replace"))
+    for tier in meta.get(b"announce-list") or []:
+        for url in tier if isinstance(tier, list) else [tier]:
+            if isinstance(url, bytes):
+                found.append(url.decode(errors="replace"))
+    return [u for u in dict.fromkeys(found) if u.startswith(("http://", "https://", "udp://"))]
+
+
 def torrent_file_to_magnet(content: bytes) -> Optional[str]:
     """Compute the magnet link of the contents of a torrent file.
+
+    The torrent's own trackers are added to the usual list of trackers. A
+    magnet link with no tracker cannot find its peers, so the torrent client
+    could never start it.
 
     Args:
         content (bytes): The torrent file.
@@ -45,7 +66,10 @@ def torrent_file_to_magnet(content: bytes) -> Optional[str]:
         name = info.get(b"name", b"").decode(errors="replace")
     except Exception:
         return None
-    return f"magnet:?xt=urn:btih:{torrent_hash}&dn={quote(name)}"
+
+    magnet = build_magnet_link(torrent_hash, name)
+    own = [t for t in _trackers(content) if quote(t, safe="") not in magnet and t not in magnet]
+    return magnet + "".join(f"&tr={quote(t, safe='')}" for t in own)
 
 
 def resolve_to_magnet(link: str) -> Optional[str]:
