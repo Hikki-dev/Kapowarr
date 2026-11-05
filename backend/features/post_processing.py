@@ -244,6 +244,19 @@ class PostProcessingContext:
         )
         return
 
+    def remove_superseded(self) -> None:
+        "After an upgrade, drop the file of the less wanted format (if allowed)"
+        if self.download.issue_id:
+            try:
+                from backend.implementations.extras import upgrades
+                upgrades.remove_superseded(
+                    self.download.issue_id,
+                    list(Settings().sv.format_preference)
+                )
+            except Exception:
+                LOGGER.exception("Removing the replaced file failed")
+        return
+
     def set_file_properties(self) -> None:
         "Process the file to set ownership, permissions and file date"
         mass_process_files(
@@ -273,6 +286,7 @@ class PostProcessor:
         self.ctx.add_file_to_database()
         self.ctx.convert_file()
         self.ctx.set_file_properties()
+        self.ctx.remove_superseded()
         notifications.imported(self.download.title)
         return
 

@@ -144,6 +144,8 @@ def _main(
         download_handler.load_downloads()
         task_handler = TaskHandler()
         task_handler.handle_intervals()
+        from backend.implementations.extras import scheduler
+        scheduler.start()
 
     restart_type = None
     try:

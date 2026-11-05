@@ -9,6 +9,7 @@ New here? Start with the [README](../README.md): one command starts it. Then ope
 ## Configure
 
 - [Prowlarr and torrents](Prowlarr%20and%20torrents.md): torrent search, qBittorrent, and the Internet Archive
+- [Extras](Extras.md): release calendar, requests, quality upgrades, reading progress
 - [Notifications, Komga and metrics](Notifications%20Komga%20and%20metrics.md): messages, scans after import, hardlinks, dashboards
 
 ## Understand

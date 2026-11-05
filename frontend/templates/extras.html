@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Extras{% endblock %}
+{% block css %}
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/extras.css') }}">
+{% endblock %}
+{% block js %}
+	<script src="{{ url_for('static', filename='js/extras.js') }}" defer></script>
+{% endblock %}
+
+{% block pre_build_rows %}{% endblock %}
+
+{% block main %}
+<main>
+	<section class="tool-bar-container" aria-label="Tabs">
+		<div class="tool-bar" id="extras-tabs">
+			<button data-tab="calendar" class="active">Calendar</button>
+			<button data-tab="requests">Requests</button>
+			<button data-tab="upgrades">Upgrades</button>
+			<button data-tab="reading">Reading</button>
+		</div>
+	</section>
+	<div class="main-window">
+		<section id="tab-calendar" class="tab">
+			<p>
+				<button id="week-prev">&larr; Earlier week</button>
+				<strong id="week-label"></strong>
+				<button id="week-next">Later week &rarr;</button>
+			</p>
+			<h2>In your library</h2>
+			<div class="table-container"><table><thead><tr><th>Date</th><th>Series</th><th>Issue</th><th>State</th></tr></thead><tbody id="cal-library"></tbody></table></div>
+			<h2>New series starting <small id="cal-source"></small></h2>
+			<div class="table-container"><table><thead><tr><th>Date</th><th>Series</th><th>Publisher</th><th></th></tr></thead><tbody id="cal-new"></tbody></table></div>
+			<h2>Follow automatically</h2>
+			<p>New series whose number one comes out this week are added and searched for when they match this list. Checked once a day.</p>
+			<p>
+				<select id="watch-kind"><option value="publisher">Publisher</option><option value="keyword">Title contains</option></select>
+				<input id="watch-value" type="text" placeholder="e.g. Image, or Batman">
+				<button id="watch-add">Add</button>
+			</p>
+			<ul id="watchlist"></ul>
+		</section>
+
+		<section id="tab-requests" class="tab hidden">
+			<p>
+				<input id="req-name" type="text" placeholder="Your name (optional)">
+				<input id="req-query" type="text" placeholder="Search for a comic series">
+				<button id="req-search">Search</button>
+			</p>
+			<div class="table-container"><table><thead><tr><th>Series</th><th>Year</th><th>Publisher</th><th></th></tr></thead><tbody id="req-results"></tbody></table></div>
+			<h2>Requests</h2>
+			<div class="table-container"><table><thead><tr><th>Series</th><th>Asked by</th><th>When</th><th>State</th></tr></thead><tbody id="req-list"></tbody></table></div>
+		</section>
+
+		<section id="tab-upgrades" class="tab hidden">
+			<p id="upg-info"></p>
+			<div class="table-container"><table><thead><tr><th>Series</th><th>Issue</th><th>Now</th><th></th></tr></thead><tbody id="upg-list"></tbody></table></div>
+		</section>
+
+		<section id="tab-reading" class="tab hidden">
+			<p id="read-info"></p>
+			<div class="table-container"><table><thead><tr><th>Series</th><th>Read</th><th>Unread</th><th>State</th></tr></thead><tbody id="read-list"></tbody></table></div>
+		</section>
+	</div>
+</main>
+{% endblock main %}

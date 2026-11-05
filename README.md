@@ -24,6 +24,7 @@ You add a series once. Kapowarr finds the issues, downloads them, renames them a
 * [What is different](#what-is-different): the four changes, side by side with the original
 * [How an issue travels](#how-an-issue-travels): from adding a series to a comic on your shelf
 * [Prowlarr, the quick way](#prowlarr-the-quick-way)
+* [Extras](#extras-calendar-requests-upgrades-reading): the new page
 * [Tell me when it happens](#tell-me-when-it-happens): messages, Komga, hardlinks and numbers
 * [Run it](#run-it): one command, or Compose, and what each setting is for
 * [Coming from an older copy](#coming-from-an-older-copy)
@@ -46,6 +47,10 @@ Everything Kapowarr does is still here, including what the original added in Oct
 | Hardlinks | A finished torrent is hard linked into your library: instant, no second copy on the disk, and it keeps seeding. When the two folders are on different drives it is copied as before |
 | Tells you things | A message (ntfy, Discord or any webhook) when a comic is imported or a download fails, and Komga is asked to scan so the comic shows up at once. Both are switched on with environment variables |
 | Numbers to watch | `/api/system/metrics` gives queue size, library size and how Prowlarr is doing, for Homepage, Beszel or Prometheus |
+| A release calendar | The Extras page shows what comes out this week from your library, and which new series start. Series that match your watch list (a publisher, or a word in the title) are added and searched for by themselves |
+| Requests | Ask for a series on the Extras page: it is added, searched for, and its state is shown (searching, downloading, complete) |
+| Quality upgrades | Lists issues whose file is in a less wanted format than your format preference, and looks for better ones |
+| Reading progress | With Komga set up, shows what you have read, and series you are caught up on are searched first |
 | Upgrading from an older copy | A database from the earlier version of this copy is brought over by itself. Your library, your downloads and your qBittorrent are kept, and your Prowlarr settings become a Prowlarr indexer |
 
 ## How an issue travels
@@ -62,6 +67,15 @@ Everything Kapowarr does is still here, including what the original added in Oct
 Open Settings, Indexers, add **Prowlarr**, and enter its address and API key. Kapowarr tests the connection and tells you if the key is wrong. If you install with [media-server-setup](https://github.com/Hikki-dev/media-server-setup), this is done for you.
 
 For torrents you also need a download client: Settings, Download Clients, add **qBittorrent**. Kapowarr must be able to see qBittorrent's download folder at the same path. See [Prowlarr and torrents](docs/Prowlarr%20and%20torrents.md) for the full steps.
+
+## Extras: calendar, requests, upgrades, reading
+
+Open **Extras** under Volumes. It has four tabs. All of it is explained in [Extras](docs/Extras.md).
+
+* **Calendar:** what comes out this week, week by week, and the new series starting. Add publishers or words to the watch list and matching new series are followed for you.
+* **Requests:** search for a series and press Request. Anyone who can open Kapowarr can ask; the list shows how far each request got.
+* **Upgrades:** issues whose file is in a less wanted format than your preference, with a button to look for a better one.
+* **Reading:** your progress from Komga.
 
 ## Tell me when it happens
 

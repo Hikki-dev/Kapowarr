@@ -1,0 +1,11 @@
+.main-window { padding: 1rem; }
+.table-container { overflow-x: auto; margin-bottom: 1rem; }
+table { width: 100%; min-width: 30rem; color: var(--text-color); }
+th, td { padding: .5rem; text-align: left; border-top: 1px solid var(--border-color); }
+tbody tr:hover { background-color: var(--hover-color); }
+#extras-tabs button { margin-right: .5rem; padding: .4rem .9rem; cursor: pointer; }
+#extras-tabs button.active { font-weight: 700; text-decoration: underline; }
+.tab.hidden { display: none; }
+input[type=text], select { padding: .4rem; margin-right: .25rem; }
+small { font-weight: 400; opacity: .7; }
+#watchlist li { margin: .25rem 0; }

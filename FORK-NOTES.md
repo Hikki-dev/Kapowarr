@@ -19,8 +19,11 @@ What is changed:
 12. `backend/implementations/notifications.py` (new) and `backend/features/post_processing.py`: a message (ntfy, Discord or a JSON webhook) when a comic is imported or a download fails, and a Komga scan after an import. Environment variables only; every call runs in the background and can never stop an import.
 13. `backend/implementations/metrics.py` (new) and `frontend/api.py`: `/api/system/metrics`, plain text for dashboards.
 
+14. `backend/implementations/extras/` (new): `releases.py` (calendar, new series, watch list, follow), `requests_.py`, `upgrades.py`, `komga_sync.py`, `metron.py`, `store.py` (three small tables created with `IF NOT EXISTS`, so they take no migration number), `scheduler.py` (one daemon thread: Komga check every 30 minutes, new series every day).
+15. `frontend/extras.py` (new) and `backend/internals/server.py`: the endpoints `/api/extras/...`. `frontend/ui.py`, `frontend/templates/extras.html`, `frontend/static/js/extras.js`, `frontend/static/css/extras.css` and one link in `base.html`: the Extras page. `Kapowarr.py` starts the scheduler. `backend/features/post_processing.py` removes a replaced file when `KAPOWARR_UPGRADE_REMOVE_OLD=1`.
+
 Checks that run offline on every change, next to the original's own:
-`tests/Tbackend/implementations/prowlarr_indexer.py`, `internet_archive_indexer.py`, `torrent_links.py`, `tests/Tbackend/implementations/download_clients/torrent_name.py` and `tests/Tbackend/internals/db_migration_fork.py`.
+`tests/Tbackend/implementations/extras.py`, `improvements.py`, `prowlarr_indexer.py`, `internet_archive_indexer.py`, `torrent_links.py`, `tests/Tbackend/implementations/download_clients/torrent_name.py` and `tests/Tbackend/internals/db_migration_fork.py`.
 
 Image: `ghcr.io/hikki-dev/kapowarr-fork:latest` (amd64 and arm64), built by `.github/workflows/ci.yml`. It has its own name so the package is linked to this fork and is public. Run it like the original image:
 

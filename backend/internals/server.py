@@ -147,6 +147,8 @@ class Server(metaclass=Singleton):
         # Add endpoints
         app.register_blueprint(ui)
         app.register_blueprint(api, url_prefix=Constants.API_PREFIX)
+        from frontend.extras import extras
+        app.register_blueprint(extras, url_prefix=Constants.API_PREFIX)
 
         # Setup db handling
         app.teardown_appcontext(close_db)
