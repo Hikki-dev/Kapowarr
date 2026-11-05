@@ -19,7 +19,7 @@
 	--dark-color: var(--ink);
 
 	--accent-color: var(--comic-yellow);
-	--success-color: #2f9e5a;
+	--success-color: var(--comic-blue);
 	--error-color: var(--comic-red);
 	--warning-color: #f08a00;
 	--info-color: var(--comic-blue);
@@ -50,6 +50,7 @@
 	--darker-color: #1f1f45;
 	--gray-color: #1f1f45;
 	--mid-color: var(--comic-yellow);
+	--success-color: #5b84ff;
 	--dimmed-light-color: #c9c9e8;
 
 	--background-color: #14142b;
