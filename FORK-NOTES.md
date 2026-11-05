@@ -22,8 +22,6 @@ What is changed:
 14. `backend/implementations/extras/` (new): `releases.py` (calendar, new series, watch list, follow), `requests_.py`, `upgrades.py`, `komga_sync.py`, `metron.py`, `store.py` (three small tables created with `IF NOT EXISTS`, so they take no migration number), `scheduler.py` (one daemon thread: Komga check every 30 minutes, new series every day).
 15. `frontend/extras.py` (new) and `backend/internals/server.py`: the endpoints `/api/extras/...`. `frontend/ui.py`, `frontend/templates/extras.html`, `frontend/static/js/extras.js`, `frontend/static/css/extras.css` and one link in `base.html`: the Extras page. `Kapowarr.py` starts the scheduler. `backend/features/post_processing.py` removes a replaced file when `KAPOWARR_UPGRADE_REMOVE_OLD=1`.
 
-16. `frontend/static/css/comic.css` (new), `frontend/static/js/comic.js` (new) and `frontend/templates/base.html`: the comic look. Colours, borders, type and spacing only; no feature moves. A "you are here" line under the header, and on every series card and series page the words "N still to get" (or "Complete"). Comic lettering (Bangers) is used for headings and buttons only; text is Onest.
-
 Checks that run offline on every change, next to the original's own:
 `tests/Tbackend/implementations/extras.py`, `improvements.py`, `prowlarr_indexer.py`, `internet_archive_indexer.py`, `torrent_links.py`, `tests/Tbackend/implementations/download_clients/torrent_name.py` and `tests/Tbackend/internals/db_migration_fork.py`.
 
