@@ -103,8 +103,19 @@ a:hover { text-decoration: none; }
 }
 .ico svg { width: 100%; height: 100%; fill: currentColor; }
 
+/* Icons that are <img>: one colour per mode, set once as --icon-filter. */
+:root { --icon-filter: brightness(0) opacity(.68); }
+:root.dark-mode { --icon-filter: brightness(0) invert(.86); }
+:root :is(.tool-bar, .icon-text-color, .icon-dark-color, .icon-light-color, .window-header) img,
+:root th > img {
+	filter: var(--icon-filter);
+}
+#toggle-nav img { filter: brightness(0) invert(.9) !important; }
+.error img { filter: brightness(0) saturate(100%) invert(38%) sepia(60%) saturate(2200%) hue-rotate(330deg) !important; }
+.success img { filter: none !important; }
+
 /* Let wide content scroll inside the page instead of stretching it (Safari needs this). */
-.nav-main, main { min-width: 0; }
+.nav-main, main, .loading-container { min-width: 0; }
 
 /* ---------- Header ---------- */
 header {
@@ -211,14 +222,14 @@ nav a.current-nav .ico { color: var(--accent-color); }
 /* ---------- Tool bar ---------- */
 .tool-bar-container {
 	min-height: var(--tool-bar-height);
-	padding: 0 24px;
-	gap: 8px;
+	padding: 4px 24px;
+	gap: 0 8px;
 	background-color: var(--tool-bar-color);
 	border-bottom: 1px solid var(--border-color);
 	box-shadow: none;
 	color: var(--text-color);
 }
-.tool-bar { gap: 2px; align-items: center; }
+.tool-bar { gap: 2px; align-items: center; flex-wrap: wrap; }
 .tool-bar > * {
 	width: auto;
 	height: 36px;
