@@ -11,7 +11,7 @@ to that form here.
 
 from hashlib import sha1
 from typing import Optional
-from urllib.parse import quote
+from urllib.parse import quote, urljoin
 
 from bencoding import bencode
 from requests import RequestException
@@ -26,6 +26,7 @@ TORRENT_CONTENT_TYPES = (
 )
 MAX_TORRENT_FILE_SIZE = 10 * 1024 * 1024
 "A real .torrent file is a few hundred KB at most; anything bigger is not one"
+MAX_REDIRECTS = 5
 
 
 def torrent_file_to_magnet(content: bytes) -> Optional[str]:
@@ -62,11 +63,24 @@ def resolve_to_magnet(link: str) -> Optional[str]:
 
     try:
         with Session() as session:
-            response = session.get(link, stream=True, allow_redirects=False)
+            # Redirects are followed by hand, a few at a time: one may lead to
+            # the magnet link (which a web client would refuse to follow), and
+            # others lead on to the server that really has the file.
+            url = link
+            for _ in range(MAX_REDIRECTS + 1):
+                response = session.get(url, stream=True, allow_redirects=False)
 
-            location = response.headers.get("Location", "")
-            if location.startswith("magnet:?"):
-                return location
+                location = response.headers.get("Location", "")
+                if location.startswith("magnet:?"):
+                    return location
+                if 300 <= response.status_code < 400 and location.startswith(
+                    ("http://", "https://", "/")
+                ):
+                    url = urljoin(url, location)
+                    continue
+                break
+            else:
+                return None
 
             if not response.ok:
                 return None

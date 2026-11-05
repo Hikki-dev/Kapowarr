@@ -13,9 +13,10 @@ def torrent_bytes() -> bytes:
 
 
 def response(body=b'', content_type=None, ok=True, location=None,
-             length=None):
+             length=None, status=None):
     r = MagicMock()
     r.ok = ok
+    r.status_code = status or (200 if ok else 404)
     headers = {}
     if content_type:
         headers['Content-Type'] = content_type
@@ -35,6 +36,47 @@ def resolve(resp):
     session.__enter__.return_value = session
     with patch.object(tl, 'Session', return_value=session):
         return tl.resolve_to_magnet('http://prowlarr.local/dl?id=1')
+
+
+def resolve_chain(*responses):
+    session = MagicMock()
+    session.get.side_effect = list(responses)
+    session.__enter__.return_value = session
+    with patch.object(tl, 'Session', return_value=session):
+        return tl.resolve_to_magnet('http://site.example/dl?id=1'), session
+
+
+class RedirectTests(unittest.TestCase):
+    def test_http_redirect_to_the_torrent_file(self):
+        magnet, session = resolve_chain(
+            response(status=302, location='https://other.example/f.torrent', ok=False),
+            response(torrent_bytes(), 'application/x-bittorrent'))
+        self.assertTrue(magnet.startswith('magnet:?xt=urn:btih:'))
+        self.assertEqual(session.get.call_args_list[1].args[0], 'https://other.example/f.torrent')
+
+    def test_relative_redirect(self):
+        magnet, session = resolve_chain(
+            response(status=301, location='/real.torrent', ok=False),
+            response(torrent_bytes(), 'application/octet-stream'))
+        self.assertTrue(magnet)
+        self.assertEqual(session.get.call_args_list[1].args[0], 'http://site.example/real.torrent')
+
+    def test_redirect_chain_ending_in_a_magnet(self):
+        magnet, _ = resolve_chain(
+            response(status=302, location='http://b.example/x', ok=False),
+            response(status=302, location='magnet:?xt=urn:btih:abc', ok=False))
+        self.assertEqual(magnet, 'magnet:?xt=urn:btih:abc')
+
+    def test_a_redirect_loop_gives_up(self):
+        loop = [response(status=302, location='http://site.example/dl?id=1', ok=False)
+                for _ in range(tl.MAX_REDIRECTS + 2)]
+        magnet, session = resolve_chain(*loop)
+        self.assertIsNone(magnet)
+        self.assertLessEqual(session.get.call_count, tl.MAX_REDIRECTS + 1)
+
+    def test_redirect_to_something_that_is_not_http(self):
+        magnet, _ = resolve_chain(response(status=302, location='ftp://x/y', ok=False))
+        self.assertIsNone(magnet)
 
 
 class TorrentFileToMagnetTests(unittest.TestCase):

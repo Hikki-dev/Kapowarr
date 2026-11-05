@@ -8,10 +8,10 @@ from backend.base.definitions import (Download, DownloadClientIdentifier,
                                       DownloadType,
                                       EnqueuingDownloadFailureReason,
                                       FilenameData)
-from backend.base.helpers import Session
 from backend.implementations.download_client_manager import DownloadClients
 from backend.implementations.download_prepper_manager import DownloadPreppers
 from backend.implementations.indexer_client_manager import IndexerClients
+from backend.implementations.torrent_links import resolve_to_magnet
 
 
 @DownloadPreppers.register_prepper(DownloadType.TORRENT, "Torznab")
@@ -40,19 +40,14 @@ class TorznabPrepper(DownloadPrepper):
         return
 
     def get_downloads(self) -> List[Download]:
-        if not self.link.startswith("magnet:?"):
-            # HTTP link that redirects to magnet link
-            with Session() as session:
-                response = session.get(
-                    self.link,
-                    stream=True,
-                    allow_redirects=False
-                )
-            self.link = response.headers.get("Location", "")
-            if not self.link.startswith("magnet:?"):
-                raise EnqueuingDownloadFailure(
-                    EnqueuingDownloadFailureReason.LINK_BROKEN
-                )
+        # A magnet link, a link that leads to one, or a link to the .torrent
+        # file itself: all three end up as a magnet link
+        magnet = resolve_to_magnet(self.link)
+        if not magnet:
+            raise EnqueuingDownloadFailure(
+                EnqueuingDownloadFailureReason.LINK_BROKEN
+            )
+        self.link = magnet
 
         download = DownloadClients.get_client(DownloadClientIdentifier.TORRENT)(
             download_link=self.link,
