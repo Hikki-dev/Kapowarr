@@ -7,9 +7,9 @@
 
 Build a comic library and keep it up to date, from every place comics can be found.
 
-<p align="center"><img src="docs/images/indexers.png" alt="The Indexers page of Kapowarr: GetComics and the Internet Archive for direct downloads, and Prowlarr for torrents" width="100%"></p>
+<p align="center"><img src="docs/images/ui-library.png" alt="The Kapowarr shelf: comic covers with a progress bar under each, and how many issues are missing" width="100%"></p>
 
-<p align="center"><sub>Three places to look, set up once.</sub></p>
+<p align="center"><sub>Your shelf. Every comic shows how complete it is.</sub></p>
 
 This is a fork of [Kapowarr](https://github.com/Casvt/Kapowarr), the comic manager that works like Sonarr and Radarr. It follows the original's newest work and adds two more places to look. **Prowlarr** searches all your torrent sites at once, and the **Internet Archive** has public domain and archived comics you can download directly. It is made for comics. Manga belongs to [Kaizoku](https://github.com/Hikki-dev/Rensaio).
 
@@ -24,6 +24,7 @@ You add a series once. Kapowarr finds the issues, downloads them, renames them a
 * [What is different](#what-is-different): the four changes, side by side with the original
 * [How an issue travels](#how-an-issue-travels): from adding a series to a comic on your shelf
 * [Prowlarr, the quick way](#prowlarr-the-quick-way)
+* [A clearer interface](#a-clearer-interface): the new look, for beginners and daily users
 * [Extras](#extras-calendar-requests-upgrades-reading): the new page
 * [Tell me when it happens](#tell-me-when-it-happens): messages, Komga, hardlinks and numbers
 * [Run it](#run-it): one command, or Compose, and what each setting is for
@@ -40,6 +41,7 @@ Everything Kapowarr does is still here, including what the original added in Oct
 
 | What | In plain words |
 |---|---|
+| A clearer interface | Familiar like Sonarr and Radarr, and easier to read. A sidebar with sections, a title and one plain sentence on every page, a setup checklist, "3 missing" or "Complete" on every comic, a summary on each series, and a tab bar on phones. See [the interface](docs/Interface.md) |
 | Prowlarr as an indexer | One search asks every torrent site you set up in Prowlarr. Comics are searched first, so an answer comes in about ten seconds instead of more than a minute, and with results that are really comics. The API key travels in a header, so it never shows in a log |
 | The Internet Archive as an indexer | Finds public domain and archived comics and downloads the files directly. Titles such as "Batman: Year One" or "Saga (2012)" work, and the page images and text files the archive makes by itself are left out |
 | Torrent links that always work | Some sites give a magnet link, some a link that leads to one, some the `.torrent` file itself. All three are turned into a magnet link, whatever the site calls the file, and a file that is too big to be a real torrent is ignored |
@@ -68,9 +70,15 @@ Open Settings, Indexers, add **Prowlarr**, and enter its address and API key. Ka
 
 For torrents you also need a download client: Settings, Download Clients, add **qBittorrent**. Kapowarr must be able to see qBittorrent's download folder at the same path. See [Prowlarr and torrents](docs/Prowlarr%20and%20torrents.md) for the full steps.
 
+## A clearer interface
+
+The same Kapowarr, laid out like Sonarr and Radarr and made easier to read: one typeface, one icon set, plain words, and the same spacing everywhere. Everything is still where it was, and dark is the default. The full tour, with the reasons, is in [The interface](docs/Interface.md).
+
+<p align="center"><img src="docs/images/ui-series.png" alt="A series page: Have, Missing and In the run, then the issue list" width="49%"> <img src="docs/images/ui-mobile.png" alt="The shelf on a phone with a tab bar" width="24%"></p>
+
 ## Extras: calendar, requests, upgrades, reading
 
-Open **Extras** under Volumes. It has four tabs. All of it is explained in [Extras](docs/Extras.md).
+Open **New This Week** in the menu (the page is called Extras in the code). It has four tabs. All of it is explained in [Extras](docs/Extras.md).
 
 * **Calendar:** what comes out this week, week by week, and the new series starting. Add publishers or words to the watch list and matching new series are followed for you.
 * **Requests:** search for a series and press Request. Anyone who can open Kapowarr can ask; the list shows how far each request got.
@@ -147,5 +155,7 @@ This repository is a GitHub fork of [Casvt/Kapowarr](https://github.com/Casvt/Ka
 ## Credits and licence
 
 All credit to Cas van Tijn and the Kapowarr contributors. This copy follows Kapowarr's `development` branch of 2 November 2026 (version 1.3.2 plus unreleased work). The licence is unchanged: GPL-3.0, see [LICENSE](LICENSE).
+
+Icons are Material Symbols by Google and the typeface is Roboto, both under the Apache 2.0 licence.
 
 Comics come from third-party websites. Use this only for content you have the right to download.

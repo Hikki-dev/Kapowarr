@@ -6,6 +6,10 @@ New here? Start with the [README](../README.md): one command starts it. Then ope
 
 - [Upgrading](Upgrading.md): from the original Kapowarr, from the earlier version of this copy, and between versions
 
+## Use it
+
+- [The interface](Interface.md): the sidebar, the shelf, the setup card, light and dark, phones
+
 ## Configure
 
 - [Prowlarr and torrents](Prowlarr%20and%20torrents.md): torrent search, qBittorrent, and the Internet Archive

@@ -246,7 +246,7 @@ nav a.current-nav .ico { color: var(--accent-color); }
 .tool-bar > select { width: auto; height: 36px; }
 .tool-bar img { height: 20px; width: 20px; }
 .tool-bar div { flex: 0 1 auto; }
-.tool-bar div > p { font-size: 14px; }
+.tool-bar div > p { font-size: 14px; white-space: nowrap; }
 
 /* ---------- Buttons ---------- */
 button { font-family: inherit; font-size: 14px; color: inherit; }
@@ -712,8 +712,10 @@ main > div:has(#about-table) section:first-of-type h2 { margin-top: 0; }
 :root.dark-mode .link-list > a > img[src*="github"] { filter: invert(1); }
 #copy-about { padding: 0 12px; height: 30px; min-height: 0; margin-left: 12px; font-size: 13px; }
 
-.add-button { background-color: var(--accent-color); border-radius: var(--radius); }
-.add-button img { filter: brightness(0) !important; }
+:root.dark-mode .add-button img { filter: brightness(0) invert(.86) !important; }
+:root:not(.dark-mode) .add-button img { filter: brightness(0) opacity(.68) !important; }
+#add-remote-mapping { min-width: 44px; height: 36px; border-radius: var(--radius); background-color: var(--accent-color); }
+#add-remote-mapping img { filter: brightness(0) !important; width: 20px; }
 
 /* ---------- Phones ---------- */
 .tabbar { display: none; }

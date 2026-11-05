@@ -1,6 +1,6 @@
 # Extras: calendar, requests, upgrades, reading
 
-Open **Extras** in the menu under Volumes. Everything on it uses what Kapowarr already has; there is nothing new to install.
+Open **New This Week** in the menu (Library section). The page is called Extras in the code. Everything on it uses what Kapowarr already has; there is nothing new to install.
 
 ## Calendar
 
