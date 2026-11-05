@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/Hikki-dev/Kapowarr/actions/workflows/ci.yml/badge.svg)](https://github.com/Hikki-dev/Kapowarr/actions/workflows/ci.yml)
 [![Licence: GPL-3.0](https://img.shields.io/github/license/Hikki-dev/Kapowarr)](LICENSE)
-[![Docker](https://img.shields.io/badge/docker-ghcr.io%2Fhikki--dev%2Fkapowarr-2f86d6)](https://github.com/Hikki-dev/Kapowarr/pkgs/container/kapowarr)
+[![Docker](https://img.shields.io/badge/docker-ghcr.io%2Fhikki--dev%2Fkapowarr--fork-2f86d6)](https://github.com/Hikki-dev/Kapowarr/pkgs/container/kapowarr-fork)
 [![Based on Kapowarr](https://img.shields.io/badge/based%20on-Kapowarr-eac700)](https://github.com/Casvt/Kapowarr)
 
 Build a comic library and keep it up to date, from every place comics can be found.
@@ -49,7 +49,7 @@ docker run -d --name kapowarr --restart unless-stopped -p 5656:5656 \
   -v kapowarr-db:/app/db \
   -v /path/to/downloads:/app/temp_downloads \
   -v /path/to/comics:/comics-1 \
-  ghcr.io/hikki-dev/kapowarr:latest
+  ghcr.io/hikki-dev/kapowarr-fork:latest
 ```
 
 Open `http://your-server:5656`. You need a free [ComicVine key](https://comicvine.gamespot.com/api) so Kapowarr can look up comics.
