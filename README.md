@@ -7,7 +7,7 @@
 
 Build a comic library and keep it up to date, from every place comics can be found.
 
-<p align="center"><img src="docs/images/ui-library.png" alt="The Kapowarr shelf: comic covers with a progress bar under each, and how many issues are missing" width="100%"></p>
+<p align="center"><img src="docs/images/ui-library.jpg" alt="The Kapowarr shelf: comic covers with a progress bar under each, and how many issues are missing" width="100%"></p>
 
 <p align="center"><sub>Your shelf. Every comic shows how complete it is.</sub></p>
 
@@ -49,7 +49,7 @@ Everything Kapowarr does is still here, including what the original added in Oct
 | Hardlinks | A finished torrent is hard linked into your library: instant, no second copy on the disk, and it keeps seeding. When the two folders are on different drives it is copied as before |
 | Tells you things | A message (ntfy, Discord or any webhook) when a comic is imported or a download fails, and Komga is asked to scan so the comic shows up at once. Both are switched on with environment variables |
 | Numbers to watch | `/api/system/metrics` gives queue size, library size and how Prowlarr is doing, for Homepage, Beszel or Prometheus |
-| A release calendar | The Extras page shows what comes out this week from your library, and which new series start. Series that match your watch list (a publisher, or a word in the title) are added and searched for by themselves |
+| A release calendar | New This Week has a Day, Week, Month and Year calendar of the release dates your library knows, a "Coming up" list of the next issue of every series, and the new series that start. Series that match your watch list Series that match your watch list (a publisher, or a word in the title) are added and searched for by themselves |
 | Requests | Ask for a series on the Extras page: it is added, searched for, and its state is shown (searching, downloading, complete) |
 | Quality upgrades | Lists issues whose file is in a less wanted format than your format preference, and looks for better ones |
 | Reading progress | With Komga set up, shows what you have read, and series you are caught up on are searched first |
@@ -74,13 +74,15 @@ For torrents you also need a download client: Settings, Download Clients, add **
 
 The same Kapowarr, laid out like Sonarr and Radarr and made easier to read: one typeface, one icon set, plain words, and the same spacing everywhere. Everything is still where it was, and dark is the default. The full tour, with the reasons, is in [The interface](docs/Interface.md).
 
-<p align="center"><img src="docs/images/ui-series.png" alt="A series page: Have, Missing and In the run, then the issue list" width="49%"> <img src="docs/images/ui-mobile.png" alt="The shelf on a phone with a tab bar" width="24%"></p>
+<p align="center"><img src="docs/images/ui-calendar-month.png" alt="The month calendar" width="49%"> <img src="docs/images/ui-series.png" alt="A series page: Have, Missing and In the run, then the issue list" width="49%"></p>
+
+<p align="center"><img src="docs/images/ui-library-light.jpg" alt="The same shelf in the light theme" width="49%"> <img src="docs/images/ui-mobile.jpg" alt="The shelf on a phone with a tab bar" width="24%"></p>
 
 ## Extras: calendar, requests, upgrades, reading
 
 Open **New This Week** in the menu (the page is called Extras in the code). It has four tabs. All of it is explained in [Extras](docs/Extras.md).
 
-* **Calendar:** what comes out this week, week by week, and the new series starting. Add publishers or words to the watch list and matching new series are followed for you.
+* **Calendar:** a Day, Week, Month and Year calendar of what comes out, a "Coming up" list of the next issue of every series, and the new series starting. Add publishers or words to the watch list and matching new series are followed for you.
 * **Requests:** search for a series and press Request. Anyone who can open Kapowarr can ask; the list shows how far each request got.
 * **Upgrades:** issues whose file is in a less wanted format than your preference, with a button to look for a better one.
 * **Reading:** your progress from Komga.

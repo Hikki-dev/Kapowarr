@@ -5,7 +5,7 @@ tidied so a beginner can find things and a daily user can work quickly. It
 changes only how things look and are worded. Every feature, page and
 address of Kapowarr is still there.
 
-<p align="center"><img src="images/ui-library.png" alt="The Series page: a shelf of comic covers, each with its progress and how many issues are missing" width="100%"></p>
+<p align="center"><img src="images/ui-library.jpg" alt="The Series page: a shelf of comic covers, each with its progress and how many issues are missing" width="100%"></p>
 
 ## Finding your way
 
@@ -39,24 +39,56 @@ Type a name and press Enter. Results come from ComicVine. Each card says **Add t
 
 On/off options are switches. Every setting keeps its explanation underneath it.
 
-## New This Week
+## New This Week: the calendar
 
-<p align="center"><img src="images/ui-extras.png" alt="New This Week: the calendar with new series to add" width="100%"></p>
+<p align="center"><img src="images/ui-calendar-month.png" alt="The month calendar: each day lists the issues that come out, with a word for how each one stands" width="100%"></p>
 
-The page that used to be called Extras. See [Extras](Extras.md).
+The calendar answers "when does the next issue come out?". Pick **Day, Week, Month or Year**, move with the arrows (or the left and right arrow keys), and press **Today** to come back. Your choice of view is remembered.
+
+- **Month** shows every day. An issue is a small label with the series and number, coloured by how it stands. More than three on one day: press "+ more", or the day number, to open that day.
+- **Week** lists the seven days, with the empty ones kept short.
+- **Day** is one list.
+- **Year** shows twelve tiles with how many issues come out each month. Press a month to open it.
+- **Coming up** lists the next issue of every series that has a date, for the next month, 3 months, 6 months or year, with "in 4 weeks".
+
+Every label says its state in words as well as colour: **Downloaded**, **Wanted** (already out, still missing), **Not out yet** and **Not monitored**.
+
+<p align="center"><img src="images/ui-calendar-year.png" alt="The year calendar: twelve months with how many issues each one has" width="49%"> <img src="images/ui-mobile-calendar.jpg" alt="The month calendar on a phone, with a dot for each release" width="24%"></p>
+
+The dates come from your library, so the calendar works without internet. A date shows up once ComicVine knows it, so a series with nothing announced has nothing on the calendar. **New series starting** asks ComicVine and only runs when you press its button. See [Extras](Extras.md) for the rest of the page.
 
 ## Light and dark
 
 Dark is the default, as in Sonarr. Change it under Settings, General, Theme.
 
-<p align="center"><img src="images/ui-library-light.png" alt="The same shelf in the light theme" width="100%"></p>
+<p align="center"><img src="images/ui-library-light.jpg" alt="The same shelf in the light theme" width="100%"></p>
 
 ## On a phone
 
-<p align="center"><img src="images/ui-mobile.png" alt="The shelf on a phone, with the tab bar at the bottom" width="320"></p>
+<p align="center"><img src="images/ui-mobile.jpg" alt="The shelf on a phone, with the tab bar at the bottom" width="320"></p>
+
+## Colours
+
+One family of cool slate greys carries both themes, so nothing looks like a stray grey.
+
+| Role | Light | Dark |
+|---|---|---|
+| Page | `#f4f6f9` | `#14171c` |
+| Cards and bars | `#ffffff` | `#1b1f26` |
+| Text | `#19202a` | `#eceff3` |
+| Quiet text | `#55606f` | `#a3acb9` |
+| Lines | `#dde2e9` | `#2f3640` |
+| Gold (main action, current page) | `#f2c200` | `#f2c200` |
+| Green (have it) | `#1b8a4b` | `#3dbb6d` |
+| Amber (wanted) | `#b86e00` | `#f0a62b` |
+| Red (missing, error) | `#c8323f` | `#ef5b6a` |
+| Blue (not out yet, links) | `#1f64d6` | `#5aa2ff` |
+
+The sidebar is the same deep ink in both themes. Text on gold is always the dark ink. Every pair above is at least 4.5 to 1 against its background.
 
 ## Design rules
 
+- **The logo stands alone** at the top of the sidebar, with no wordmark next to it.
 - **One typeface**, Roboto, in regular, medium and bold. Nothing decorative.
 - **One icon set**, Material Symbols Sharp, drawn at one weight and size, instead of a mix of styles. The icons are in `frontend/static/img` and `frontend/static/img/ui`.
 - **Gold (`#ebc700`) is used sparingly**: the current page, the main button on a page and the monitored bookmark. Status uses green, amber and red, and always with a word.

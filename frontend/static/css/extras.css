@@ -191,8 +191,11 @@ small { font-weight: 400; color: var(--dimmed-text-color); font-size: 13px; }
 
 @media (max-width: 720px) {
 	#cal-label { min-width: 0; width: 100%; order: 3; }
-	.cal-day { min-height: 72px; padding: 4px; }
-	.cal-item { font-size: 11px; padding: 1px 4px; }
+	.cal-day { min-height: 64px; padding: 4px; flex-direction: row; flex-wrap: wrap; align-content: flex-start; gap: 2px; }
+	.cal-num { flex: 0 0 100%; text-align: left; }
+	/* a dot per release on a phone; tap the day to read them */
+	.cal-item { width: 8px; height: 8px; padding: 0; border: 0; border-radius: 50%; background-color: currentColor; font-size: 0; overflow: hidden; }
+	.cal-more { padding: 0; font-size: 11px; }
 	.cal-dow { padding: 6px 2px; font-size: 11px; text-align: center; }
 	.up-item { grid-template-columns: minmax(0, 1fr) auto; padding: 8px 12px; }
 	.up-date { grid-column: 1; }
