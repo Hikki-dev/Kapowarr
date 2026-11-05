@@ -11,18 +11,24 @@ Build a comic library and keep it up to date, from every place comics can be fou
 
 <p align="center"><sub>Three places to look, set up once.</sub></p>
 
-This is [Kapowarr](https://github.com/Casvt/Kapowarr), the comic manager that works like Sonarr and Radarr, on top of its newest work, with two more places to look. **Prowlarr** searches all your torrent sites at once, and the **Internet Archive** has public domain and archived comics you can download directly. It is made for comics. Manga belongs to [Kaizoku](https://github.com/Hikki-dev/Rensaio).
+This is a fork of [Kapowarr](https://github.com/Casvt/Kapowarr), the comic manager that works like Sonarr and Radarr. It follows the original's newest work and adds two more places to look. **Prowlarr** searches all your torrent sites at once, and the **Internet Archive** has public domain and archived comics you can download directly. It is made for comics. Manga belongs to [Kaizoku](https://github.com/Hikki-dev/Rensaio).
 
 You add a series once. Kapowarr finds the issues, downloads them, renames them and files them in the right folder. You do not need to know where comics come from.
 
+<p align="center"><img src="docs/images/flow.svg" alt="Add a comic series once. Kapowarr checks your comics folder, searches Prowlarr, GetComics and the Internet Archive, and files what is missing. If a download fails, the next result is tried." width="100%"></p>
+
+<p align="center"><sub>How a comic is added and kept up to date.</sub></p>
+
 ## On this page
 
-* [What is different](#what-is-different)
+* [What is different](#what-is-different): the four changes, side by side with the original
+* [How an issue travels](#how-an-issue-travels): from adding a series to a comic on your shelf
 * [Prowlarr, the quick way](#prowlarr-the-quick-way)
-* [Run it](#run-it)
+* [Run it](#run-it): one command, or Compose, and what each setting is for
 * [Coming from an older copy](#coming-from-an-older-copy)
 * [Light on your computer](#light-on-your-computer)
 * [Made with care](#made-with-care)
+* [Staying a true fork](#staying-a-true-fork)
 * [Help and more reading](#help-and-more-reading)
 * [Credits and licence](#credits-and-licence)
 
@@ -37,9 +43,20 @@ Everything Kapowarr does is still here, including what the original added in Oct
 | Torrent links that always work | Some sites give a magnet link, some a link that leads to one, some the `.torrent` file itself. All three are turned into a magnet link, whatever the site calls the file, and a file that is too big to be a real torrent is ignored |
 | Upgrading from an older copy | A database from the earlier version of this copy is brought over by itself. Your library, your downloads and your qBittorrent are kept, and your Prowlarr settings become a Prowlarr indexer |
 
+## How an issue travels
+
+1. You add a series (a "volume") and pick the root folder it lives in.
+2. Kapowarr reads the folder and marks the issues you already have.
+3. For the issues you are missing, it asks every source you switched on: **GetComics**, the **Internet Archive** and **Prowlarr** (which asks all your torrent sites at once).
+4. The best matching result is downloaded. A direct download goes straight to the folder. A torrent link is turned into a magnet link and handed to qBittorrent, and the finished file is copied in.
+5. The file is renamed and filed in the series folder. If a download fails, the next result is tried.
+6. A scheduled task looks again for new issues, so they arrive by themselves.
+
 ## Prowlarr, the quick way
 
 Open Settings, Indexers, add **Prowlarr**, and enter its address and API key. Kapowarr tests the connection and tells you if the key is wrong. If you install with [media-server-setup](https://github.com/Hikki-dev/media-server-setup), this is done for you.
+
+For torrents you also need a download client: Settings, Download Clients, add **qBittorrent**. Kapowarr must be able to see qBittorrent's download folder at the same path. See [Prowlarr and torrents](docs/Prowlarr%20and%20torrents.md) for the full steps.
 
 ## Run it
 
@@ -52,7 +69,20 @@ docker run -d --name kapowarr --restart unless-stopped -p 5656:5656 \
   ghcr.io/hikki-dev/kapowarr-fork:latest
 ```
 
-Open `http://your-server:5656`. You need a free [ComicVine key](https://comicvine.gamespot.com/api) so Kapowarr can look up comics.
+Open `http://your-server:5656`. You need a free [ComicVine key](https://comicvine.gamespot.com/api) so Kapowarr can look up comics. Then add a root folder (`/comics-1` in the command above), add a series, and press **Search Monitored**.
+
+The same thing with Docker Compose is in [docker-compose.yml](docker-compose.yml).
+
+| Setting | What it does |
+|---|---|
+| `-p 5656:5656` | The web page. Change the left number if 5656 is taken |
+| `-v kapowarr-db:/app/db` | Your database: library, settings, history. Back this up |
+| `-v /path/to/downloads:/app/temp_downloads` | Where files are downloaded before they are filed |
+| `-v /path/to/comics:/comics-1` | Your comics. Add `/comics-1` as a root folder in Kapowarr |
+| `PUID` / `PGID` | The user and group that own the files. Use `0` to run as root, or your own ids (`id -u`, `id -g`) |
+| `TZ` | Your time zone, for the schedule and the logs |
+
+The image tells Docker when it is healthy, so `docker ps` shows `(healthy)` once the web page is up. [Troubleshooting](docs/Troubleshooting.md) covers the usual problems.
 
 ## Coming from an older copy
 
@@ -72,8 +102,14 @@ About 100 MB of memory when idle and a 170 MB image. There is no second database
 * New versions are built for Intel/AMD and ARM automatically and are only published when the checks pass.
 * This copy follows the original's newest work. It changes only what is listed above, so new work from the original can be brought in. A weekly check does that merge for you and opens a pull request, or an issue when it does not merge cleanly. See [Keeping up with Kapowarr](docs/Keeping%20up%20with%20Kapowarr.md).
 
+## Staying a true fork
+
+This repository is a GitHub fork of [Casvt/Kapowarr](https://github.com/Casvt/Kapowarr). Nothing is ever pushed to the original; new work flows one way, from the original into this copy. Every change this copy makes is listed in [FORK-NOTES.md](FORK-NOTES.md), file by file, so a merge stays easy.
+
 ## Help and more reading
 
+* [FORK-NOTES.md](FORK-NOTES.md): every change in this fork and the files it touches
+* [docs/README.md](docs/README.md): all the guides of this fork
 * [docs/Original README.md](docs/Original%20README.md): the original Kapowarr page
 * [Kapowarr documentation](https://casvt.github.io/Kapowarr/): how every setting works
 * [Issues](https://github.com/Hikki-dev/Kapowarr/issues): ask a question or report something that went wrong

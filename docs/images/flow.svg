@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="420" viewBox="0 0 1400 420" font-family="Arial, Helvetica, sans-serif" role="img" aria-labelledby="t d">
+<title id="t">How a comic is added and kept up to date</title>
+<desc id="d">You add a series. Kapowarr reads your comics folder and marks the issues you own. Prowlarr, GetComics and the Internet Archive are searched, and only missing issues are downloaded. If a download fails, another result is tried.</desc>
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" fill="#5a7fb0"/></marker>
+<marker id="r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" fill="#c2410c"/></marker></defs>
+<rect width="1400" height="420" rx="18" fill="#f6f8fb"/>
+<g font-size="22" font-weight="700" fill="#14212e" text-anchor="middle">
+<rect x="40" y="60" width="240" height="110" rx="14" fill="#fff" stroke="#2f86d6" stroke-width="3"/><text x="160" y="105">1. You add</text><text x="160" y="138" font-weight="400" font-size="18" fill="#475569">a comic series, once</text>
+<rect x="340" y="60" width="240" height="110" rx="14" fill="#fff" stroke="#14a39a" stroke-width="3"/><text x="460" y="105">2. It checks</text><text x="460" y="138" font-weight="400" font-size="18" fill="#475569">your comics folder</text>
+<rect x="640" y="60" width="260" height="110" rx="14" fill="#fff" stroke="#14a39a" stroke-width="3"/><text x="770" y="105">3. It searches</text><text x="770" y="138" font-weight="400" font-size="18" fill="#475569">Prowlarr, GetComics, Archive</text>
+<rect x="960" y="60" width="240" height="110" rx="14" fill="#fff" stroke="#7c5cc4" stroke-width="3"/><text x="1080" y="105">4. Your library</text><text x="1080" y="138" font-weight="400" font-size="18" fill="#475569">renamed and filed</text>
+<rect x="640" y="270" width="260" height="110" rx="14" fill="#fff" stroke="#c2410c" stroke-width="3"/><text x="770" y="315" fill="#c2410c">Download fails?</text><text x="770" y="348" font-weight="400" font-size="18" fill="#475569">the next result is tried</text>
+</g>
+<g stroke="#5a7fb0" stroke-width="4" fill="none" marker-end="url(#a)"><path d="M280 115H334"/><path d="M580 115H634"/><path d="M900 115H954"/></g>
+<g stroke="#c2410c" stroke-width="4" fill="none" marker-end="url(#r)"><path d="M770 170V264"/><path d="M900 325C1010 325 1070 260 1080 176"/></g>
+<text x="460" y="215" font-size="17" fill="#475569" text-anchor="middle">issues you have are not fetched again</text>
+<text x="1160" y="260" font-size="17" fill="#475569" text-anchor="middle">one copy per issue</text>
+</svg>

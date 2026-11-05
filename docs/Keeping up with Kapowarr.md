@@ -1,6 +1,6 @@
 # Keeping up with Kapowarr
 
-This copy is built on the `development` branch of [Kapowarr](https://github.com/Casvt/Kapowarr), with its history, so new work from the original can be merged in.
+This repository is a GitHub fork of [Kapowarr](https://github.com/Casvt/Kapowarr), built on its `development` branch with its history, so new work from the original can be merged in. Nothing is ever pushed to the original: the `upstream` remote has pushing switched off.
 
 * **Every Monday** a workflow fetches the original's newest commits and tries to merge them. If they merge cleanly and the tests pass, it opens a pull request. If not, it opens an issue.
 * **By hand:** `git remote add upstream https://github.com/Casvt/Kapowarr.git`, then `git fetch upstream development && git merge upstream/development`, then run the tests.
