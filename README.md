@@ -58,6 +58,8 @@ Open `http://your-server:5656`. You need a free [ComicVine key](https://comicvin
 
 Back up the database volume, then start this image on the same volume. The database is upgraded on the first start, and the older Prowlarr settings become an indexer. Nothing else needs doing.
 
+This also works from the original Kapowarr. Databases made by versions 1.0.0, 1.1.0, 1.2.0, 1.3.0, 1.3.1 and 1.3.2 were each upgraded with this image and came out with the library, root folder and settings intact, the Internet Archive added, and a clean integrity check.
+
 ## Light on your computer
 
 About 100 MB of memory when idle and a 170 MB image. There is no second database server, no browser and nothing compiled when you install. The image is built for Intel/AMD and ARM (the ARM build is made but not yet run on a real Raspberry Pi), and it tells Docker when it is healthy.
@@ -65,9 +67,10 @@ About 100 MB of memory when idle and a 170 MB image. There is no second database
 ## Made with care
 
 * The new parts have their own checks, which run without internet on every change, together with the checks of the original.
-* A copy of a real library's database was upgraded offline to make sure nothing is lost on the way.
+* A copy of a real library's database, and databases made by each original release from 1.0.0 to 1.3.2, were upgraded offline to make sure nothing is lost on the way.
+* A torrent link from Prowlarr was followed all the way: turned into a magnet link, accepted by qBittorrent and downloaded. What happens after the download finishes (moving the comic into the library) is the original's own part and was not run on a real comic torrent.
 * New versions are built for Intel/AMD and ARM automatically and are only published when the checks pass.
-* This copy follows the original's newest work. It changes only what is listed above, so new work from the original can be brought in.
+* This copy follows the original's newest work. It changes only what is listed above, so new work from the original can be brought in. A weekly check does that merge for you and opens a pull request, or an issue when it does not merge cleanly. See [Keeping up with Kapowarr](docs/Keeping%20up%20with%20Kapowarr.md).
 
 ## Help and more reading
 
