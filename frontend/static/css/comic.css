@@ -1,0 +1,369 @@
+/* The comic-shop look. Loaded after every other stylesheet, so it only
+   changes colours, borders, type and spacing. Nothing here moves a feature.
+   Comic lettering (Bangers) is for headings and buttons only; everything
+   you read is Onest at normal size. */
+
+:root {
+	--ink: #14142b;
+	--comic-red: #e8232f;
+	--comic-blue: #1d3fe0;
+	--comic-yellow: #ffd400;
+	--paper: #fff6dc;
+	--here-height: 44px;
+
+	--light-color: #ffffff;
+	--off-light-color: var(--paper);
+	--dark-hover-color: #ffeeb0;
+	--mid-color: var(--ink);
+	--darker-color: #383854;
+	--dark-color: var(--ink);
+
+	--accent-color: var(--comic-yellow);
+	--success-color: #2f9e5a;
+	--error-color: var(--comic-red);
+	--warning-color: #f08a00;
+	--info-color: var(--comic-blue);
+
+	--header-background-color: var(--comic-red);
+	--header-color: var(--ink);
+	--tool-bar-color: var(--ink);
+
+	--background-color: var(--paper);
+	--hover-color: #ffeeb0;
+	--border-color: var(--ink);
+	--foreground-color: #ffffff;
+	--text-color: var(--ink);
+	--dimmed-text-color: #383854;
+
+	--nav-background-color: var(--ink);
+	--nav-color: #ffffff;
+	--volume-info-background-color: var(--ink);
+	--header-height: 72px;
+	--nav-width: clamp(170px, 20vw, 220px);
+}
+
+:root.dark-mode {
+	--ink: #0d0d22;
+	--paper: #14142b;
+	--light-color: #ffffff;
+	--dark-color: #0d0d22;
+	--darker-color: #1f1f45;
+	--gray-color: #1f1f45;
+	--mid-color: var(--comic-yellow);
+	--dimmed-light-color: #c9c9e8;
+
+	--background-color: #14142b;
+	--hover-color: #25255a;
+	--foreground-color: #1f1f45;
+	--border-color: var(--comic-yellow);
+	--text-color: #ffffff;
+	--dimmed-text-color: #c9c9e8;
+	--tool-bar-color: #0d0d22;
+	--nav-background-color: #0d0d22;
+	--header-background-color: var(--comic-red);
+}
+
+body {
+	font-family: 'Onest', 'Roboto', system-ui, sans-serif;
+	font-size: 16px;
+	line-height: 1.5;
+	background-color: var(--background-color);
+	color: var(--text-color);
+}
+
+h1, h2, h3, .bang {
+	font-family: 'Bangers', Impact, 'Arial Narrow', sans-serif;
+	font-weight: 400;
+	letter-spacing: .03em;
+}
+
+/* Header: a comic cover banner */
+header {
+	height: var(--header-height);
+	padding: .6rem 1rem;
+	border-bottom: 4px solid var(--ink);
+	font-size: 1rem;
+	align-items: center;
+}
+
+.menu-title-container > a {
+	width: 3.2rem;
+	background: var(--comic-yellow);
+	border: 3px solid var(--ink);
+	border-radius: 50%;
+	padding: .25rem;
+	box-shadow: 3px 3px 0 var(--ink);
+}
+
+.menu-title-container::after {
+	content: "KAPOWARR!";
+	margin-left: .5rem;
+	padding: .1rem .9rem;
+	background: var(--comic-yellow);
+	border: 3px solid var(--ink);
+	border-radius: 6px;
+	box-shadow: 4px 4px 0 var(--ink);
+	font-family: 'Bangers', Impact, sans-serif;
+	font-size: 2rem;
+	line-height: 1.2;
+	letter-spacing: .05em;
+	color: var(--comic-red);
+	text-shadow: 2px 2px 0 var(--ink);
+	transform: rotate(-1.5deg);
+}
+
+/* "You are here" strip, added by comic.js */
+.here-bar {
+	flex: 0 0 auto;
+	min-height: var(--here-height);
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: .25rem .75rem;
+	padding: .35rem 1rem;
+	background: var(--ink);
+	color: #fff;
+	font-weight: 600;
+	border-bottom: 3px solid var(--comic-yellow);
+}
+
+.here-bar .here-tag {
+	background: var(--comic-yellow);
+	color: var(--ink);
+	border-radius: 4px;
+	padding: 0 .6rem;
+	font-weight: 700;
+	font-size: .85rem;
+	letter-spacing: .04em;
+}
+
+.here-bar a { color: var(--comic-yellow); }
+
+.here-bar .here-hint {
+	margin-left: auto;
+	color: var(--comic-yellow);
+	font-weight: 500;
+	font-size: .95rem;
+}
+
+.here-bar .here-left {
+	background: var(--comic-red);
+	border: 2px solid #fff;
+	border-radius: 4px;
+	padding: 0 .6rem;
+	font-weight: 700;
+}
+
+.here-bar .here-done {
+	background: var(--comic-blue);
+	border: 2px solid #fff;
+	border-radius: 4px;
+	padding: 0 .6rem;
+	font-weight: 700;
+}
+
+main {
+	height: calc(100dvh - var(--header-height) - var(--here-height));
+}
+
+/* Navigation: big, plain words */
+#nav-bar {
+	border-right: 4px solid var(--ink);
+	background: var(--ink);
+}
+
+nav a {
+	font-family: 'Bangers', Impact, sans-serif;
+	font-size: 1.25rem;
+	letter-spacing: .04em;
+	padding: .8rem 1rem .8rem 1.2rem;
+	border-left: 6px solid var(--comic-red);
+}
+
+nav a:hover { color: var(--comic-yellow); }
+
+.sub-nav a {
+	font-family: 'Onest', sans-serif;
+	font-size: .95rem;
+	letter-spacing: 0;
+	padding-left: 2.6rem;
+	border-left-color: transparent;
+}
+
+.current-nav {
+	background: var(--comic-yellow);
+	color: var(--ink) !important;
+	border-left-color: var(--ink) !important;
+}
+
+/* Tool bar */
+.tool-bar-container {
+	border-bottom: 4px solid var(--comic-yellow);
+	box-shadow: none;
+}
+
+.tool-bar > * {
+	width: 5rem;
+	height: 4rem;
+}
+
+.tool-bar div > p { font-size: .8rem; font-weight: 600; }
+
+/* Buttons and fields */
+button, select, input[type="text"], input[type="password"], input[type="number"], input[type="search"], textarea {
+	font-family: 'Onest', sans-serif;
+	font-size: 1rem;
+	color: var(--text-color);
+}
+
+select, input[type="text"], input[type="password"], input[type="number"], input[type="search"], textarea {
+	min-height: 2.5rem;
+	padding: .3rem .7rem;
+	border: 3px solid var(--ink);
+	border-radius: 6px;
+	background: #fff;
+	color: var(--ink);
+}
+
+:root.dark-mode select,
+:root.dark-mode input[type="text"],
+:root.dark-mode input[type="password"],
+:root.dark-mode input[type="number"],
+:root.dark-mode textarea { border-color: var(--comic-yellow); background: #1f1f45; color: #fff; }
+
+:focus-visible {
+	outline: 3px solid var(--comic-blue);
+	outline-offset: 2px;
+}
+
+form button[type="submit"],
+.window button[type="submit"],
+.window button[type="button"],
+#submit-edit, #submit-delete, #submit-rename, #submit-convert {
+	min-height: 2.75rem;
+	padding: .3rem 1.3rem;
+	border: 3px solid var(--ink);
+	border-radius: 6px;
+	background: var(--comic-yellow);
+	color: var(--ink);
+	box-shadow: 4px 4px 0 var(--ink);
+	font-family: 'Bangers', Impact, sans-serif;
+	font-size: 1.3rem;
+	letter-spacing: .04em;
+}
+
+form button[type="submit"]:hover,
+.window button:hover { transform: translate(-1px, -1px); box-shadow: 5px 5px 0 var(--ink); }
+
+.page-turner > button { border-color: var(--ink); background: var(--comic-yellow); color: var(--ink); }
+#page-number { border-block-color: var(--ink); }
+
+/* Tables: dark heading row, clear lines, comfortable rows */
+table { color: var(--text-color); }
+
+thead th {
+	padding: .7rem .75rem;
+	background: var(--ink);
+	color: #fff;
+	font-weight: 700;
+	font-size: .95rem;
+}
+
+tbody td { padding: .7rem .75rem; font-size: 1rem; }
+
+tbody tr { border-bottom: 2px solid var(--ink); }
+tbody tr:hover { background-color: var(--hover-color); }
+tbody td { border-bottom: 2px solid rgba(20, 20, 43, .18); }
+
+/* Library posters: a comic on a shelf */
+#library-container { padding: 1.5rem; }
+
+#list-library { --entry-width: clamp(8rem, 13%, 11rem); gap: 1.4rem; }
+
+.list-entry {
+	border: 3px solid var(--ink);
+	border-radius: 6px;
+	box-shadow: 5px 5px 0 var(--ink);
+	background: #fff;
+	color: var(--ink);
+	overflow: hidden;
+	transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+:root.dark-mode .list-entry { background: #1f1f45; color: #fff; border-color: var(--comic-yellow); box-shadow: 5px 5px 0 var(--comic-red); }
+
+.list-entry:hover {
+	box-shadow: 8px 8px 0 var(--ink);
+	transform: translate(-2px, -2px);
+}
+
+.list-img { border-bottom: 3px solid var(--ink); }
+
+.list-entry > :where(h2, p) {
+	font-family: 'Onest', sans-serif;
+	font-size: .95rem;
+	font-weight: 600;
+	padding: .25rem .5rem;
+	letter-spacing: 0;
+}
+
+.list-entry > p { font-weight: 500; color: var(--dimmed-text-color); font-size: .85rem; }
+
+.list-prog-container, .table-prog-container {
+	min-height: 1.6rem;
+	border-top: 3px solid var(--ink);
+	border-bottom: 3px solid var(--ink);
+	background: #fff;
+	color: var(--ink);
+	font-weight: 700;
+	font-size: .95rem;
+}
+
+.list-prog-num, .table-prog-num { position: relative; z-index: 1; align-self: center; padding: 0 .4rem; }
+
+.list-togo {
+	margin: .4rem .5rem .5rem;
+	padding: .15rem .4rem;
+	border: 2px solid var(--ink);
+	border-radius: 4px;
+	background: var(--comic-red);
+	color: #fff;
+	text-align: center;
+	font-weight: 700;
+	font-size: .9rem;
+	letter-spacing: .02em;
+	white-space: normal !important;
+}
+
+.list-togo.done { background: var(--comic-blue); }
+
+.list-monitored, .list-unmonitored { font-size: .8rem !important; }
+
+/* Pop-up windows */
+.window > section {
+	border: 3px solid var(--ink);
+	border-radius: 8px;
+	box-shadow: 8px 8px 0 var(--ink);
+}
+
+.window > section > .window-header {
+	background: var(--comic-yellow);
+	color: var(--ink);
+	border-bottom: 3px solid var(--ink);
+}
+
+.window > section > .window-header h2 { font-size: 1.6rem; }
+
+/* Volume page */
+.volume-info { border-bottom: 4px solid var(--comic-yellow); }
+.volume-title-monitored h2 { font-size: 2.4rem; line-height: 1; }
+
+.issue-entry .issue-number { font-family: 'Bangers', Impact, sans-serif; font-size: 1.5rem; letter-spacing: .03em; }
+.issue-status { font-weight: 700; }
+
+@media (max-width: 720px) {
+	:root { --header-height: 64px; }
+	.menu-title-container::after { font-size: 1.4rem; padding: 0 .5rem; }
+	.here-bar .here-hint { margin-left: 0; width: 100%; }
+	#list-library { --entry-width: clamp(9rem, 44%, 12rem); }
+}
