@@ -234,8 +234,8 @@ nav a.current-nav .ico { color: var(--accent-color); }
 	width: auto;
 	height: 36px;
 	flex-direction: row;
-	gap: 8px;
-	padding: 0 12px;
+	gap: 6px;
+	padding: 0 8px;
 	border-radius: var(--radius);
 	background-color: transparent;
 	color: var(--text-color);
@@ -628,14 +628,15 @@ tbody tr:hover { background-color: var(--hover-color); }
 /* ---------- Activity tabs (shell.js) ---------- */
 .tabs-row {
 	display: flex;
+	flex-direction: row;
 	gap: 4px;
 	padding: 0 24px;
 	background-color: var(--foreground-color);
 	border-bottom: 1px solid var(--border-color);
 	flex: 0 0 auto;
 }
-.tabs-row a { padding: 12px 16px; font-weight: 500; color: var(--dimmed-text-color); border-bottom: 2px solid transparent; margin-bottom: -1px; }
-.tabs-row a:hover { color: var(--text-color); }
+.tabs-row a { height: auto; padding: 12px 16px; font-weight: 500; font-size: 14px; color: var(--dimmed-text-color); border: 0; border-bottom: 2px solid transparent; margin-bottom: -1px; background: transparent; }
+.tabs-row a:hover { color: var(--text-color); background: transparent; }
 .tabs-row a.on { color: var(--text-color); border-bottom-color: var(--accent-color); }
 
 main > .tabs-row { flex: 0 0 auto; overflow: visible; }
@@ -725,6 +726,20 @@ main > div:has(#about-table) section:first-of-type h2 { margin-top: 0; }
 :root:not(.dark-mode) .add-button img { filter: brightness(0) opacity(.68) !important; }
 #add-remote-mapping { min-width: 44px; height: 36px; border-radius: var(--radius); background-color: var(--accent-color); }
 #add-remote-mapping img { filter: brightness(0) !important; width: 20px; }
+
+/* ---------- Import ---------- */
+#start-window h2 { font-size: 20px; line-height: 1.3; }
+#start-window { color: var(--text-color); }
+#run-import-button, #library-import-window button[type="submit"] {
+	min-height: 36px;
+	padding: 0 20px;
+	border: 1px solid var(--accent-color);
+	border-radius: var(--radius);
+	background-color: var(--accent-color);
+	color: var(--accent-text-color);
+	font-weight: 500;
+}
+.cancel-button { min-height: 36px; padding: 0 16px; border: 1px solid var(--border-strong); border-radius: var(--radius); background: var(--foreground-color); color: var(--text-color); font-weight: 500; }
 
 /* ---------- Phones ---------- */
 .tabbar { display: none; }
