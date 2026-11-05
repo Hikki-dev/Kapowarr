@@ -14,7 +14,7 @@ ALLOWED_THEMES = ["", "dark-mode"]
 
 
 def render(filename: str, **kwargs: Any) -> str:
-    theme = ''
+    theme = 'dark-mode'
     if "theme" in request.cookies and request.cookies["theme"] in ALLOWED_THEMES:
         theme = request.cookies["theme"]
 

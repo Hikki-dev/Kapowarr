@@ -106,15 +106,15 @@ class LibraryEntry {
 			table_bar.style.backgroundColor =
 				'var(--success-color)';
 
-		else if (this.list_entry.hasAttribute('monitored'))
+		else if (progress === 0)
 			list_bar.style.backgroundColor =
 			table_bar.style.backgroundColor =
-				'var(--accent-color)';
+				'var(--error-color)';
 
 		else
 			list_bar.style.backgroundColor =
 			table_bar.style.backgroundColor =
-				'var(--error-color)';
+				'var(--warning-color)';
 
 		return;
 	};

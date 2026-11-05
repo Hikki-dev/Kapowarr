@@ -1,11 +1,89 @@
-.main-window { padding: 1rem; }
-.table-container { overflow-x: auto; margin-bottom: 1rem; }
-table { width: 100%; min-width: 30rem; color: var(--text-color); }
-th, td { padding: .5rem; text-align: left; border-top: 1px solid var(--border-color); }
-tbody tr:hover { background-color: var(--hover-color); }
-#extras-tabs button { margin-right: .5rem; padding: .4rem .9rem; cursor: pointer; }
-#extras-tabs button.active { font-weight: 700; text-decoration: underline; }
+/* New This Week: calendar, auto-follow, requests, upgrades, reading. */
+.main-window { padding: 24px; }
+.tab { max-width: 1120px; }
 .tab.hidden { display: none; }
-input[type=text], select { padding: .4rem; margin-right: .25rem; }
-small { font-weight: 400; opacity: .7; }
-#watchlist li { margin: .25rem 0; }
+.tab > p { margin: 0 0 12px; color: var(--dimmed-text-color); max-width: 72ch; }
+.tab > h2 { margin: 32px 0 8px; font-size: 16px; font-weight: 500; color: var(--text-color); }
+.tab > h2:first-child { margin-top: 0; }
+small { font-weight: 400; color: var(--dimmed-text-color); font-size: 13px; }
+
+/* Tabs sit in the tool bar and read as tabs */
+#extras-tabs { gap: 4px; }
+#extras-tabs button {
+	height: 52px;
+	padding: 0 16px;
+	border-radius: 0;
+	border-bottom: 2px solid transparent;
+	color: var(--dimmed-text-color);
+	font-weight: 500;
+	cursor: pointer;
+}
+#extras-tabs button:hover { background: transparent; color: var(--text-color); }
+#extras-tabs button.active { color: var(--text-color); border-bottom-color: var(--accent-color); text-decoration: none; }
+
+/* Tables are cards */
+.table-container {
+	overflow-x: auto;
+	margin-bottom: 8px;
+	border: 1px solid var(--border-color);
+	border-radius: 6px;
+	background-color: var(--foreground-color);
+}
+.table-container table { width: 100%; min-width: 30rem; border-collapse: collapse; }
+.table-container td { border-top: 1px solid var(--border-color); }
+.table-container tbody tr:first-child td { border-top: 0; }
+.table-container td button, #week-prev, #week-next {
+	height: 30px;
+	padding: 0 12px;
+	border: 1px solid var(--border-color);
+	border-radius: var(--radius);
+	background-color: transparent;
+	color: var(--text-color);
+	font-size: 13px;
+	font-weight: 500;
+	cursor: pointer;
+}
+.table-container td button:hover, #week-prev:hover, #week-next:hover { background-color: var(--hover-color); }
+#week-label { margin: 0 12px; font-size: 15px; }
+
+/* Add rows */
+#watch-add, #req-search {
+	height: 36px;
+	padding: 0 16px;
+	border: 1px solid var(--accent-color);
+	border-radius: var(--radius);
+	background-color: var(--accent-color);
+	color: var(--accent-text-color);
+	font-weight: 500;
+	cursor: pointer;
+}
+.tab > p:has(input, select) { display: flex; flex-wrap: wrap; gap: 8px; }
+#watch-value, #req-query { flex: 1 1 14rem; max-width: 24rem; }
+
+/* Auto-follow list as chips */
+#watchlist { list-style: none; padding: 0; margin: 12px 0 0; display: flex; flex-wrap: wrap; gap: 8px; }
+#watchlist li {
+	margin: 0;
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 4px 6px 4px 12px;
+	border: 1px solid var(--border-color);
+	border-radius: 16px;
+	background-color: var(--foreground-color);
+}
+#watchlist li button {
+	height: 22px;
+	padding: 0 8px;
+	border: 0;
+	border-radius: 11px;
+	background-color: var(--hover-color);
+	color: var(--text-color);
+	font-size: 12px;
+	cursor: pointer;
+}
+
+@media (max-width: 720px) {
+	.main-window { padding: 16px; }
+	#extras-tabs button { padding: 0 10px; }
+}
