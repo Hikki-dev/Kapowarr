@@ -10,6 +10,7 @@ The release calendar: what comes out this week, and which new series start.
 * `follow_new_series` adds the number ones that match the watch list.
 """
 
+import re
 from datetime import date, timedelta
 from time import time
 from typing import Any, Dict, Iterable, List, Sequence, Tuple
@@ -45,6 +46,11 @@ def library_releases(start: date, end: date) -> List[Dict[str, Any]]:
     ]
 
 
+def _plain(title: str) -> str:
+    "A title without a year in brackets, case and extra spaces: `Saga (2012)` -> `saga`."
+    return " ".join(re.sub(r"\(\s*\d{4}\s*\)", " ", title or "").lower().split())
+
+
 def matches_watchlist(
     entry: Dict[str, Any], watchlist: Iterable[Tuple[str, str]]
 ) -> bool:
@@ -52,8 +58,10 @@ def matches_watchlist(
 
     Args:
         entry: has `title` and `publisher`.
-        watchlist: (kind, value) pairs. `publisher` must equal the publisher
-            (ignoring case); `keyword` must be part of the title.
+        watchlist: (kind, value) pairs. `series` must equal the title (a year
+            in brackets and capitals are ignored): the safest choice.
+            `publisher` must equal the publisher; `keyword` must be part of
+            the title.
     """
     title = (entry.get("title") or "").lower()
     publisher = (entry.get("publisher") or "").lower()
@@ -61,6 +69,8 @@ def matches_watchlist(
         value = value.strip().lower()
         if not value:
             continue
+        if kind == "series" and _plain(value) == _plain(title):
+            return True
         if kind == "publisher" and value == publisher:
             return True
         if kind == "keyword" and value in title:

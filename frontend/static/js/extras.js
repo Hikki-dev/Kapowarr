@@ -62,7 +62,7 @@ function loadWatchlist(api_key) {
 		const ul = E('#watchlist'); ul.replaceChildren();
 		j.result.forEach(w => {
 			const li = document.createElement('li');
-			li.textContent = `${w.kind === 'publisher' ? 'Publisher' : 'Title contains'}: ${w.value} `;
+			li.textContent = `${{series: 'Series', publisher: 'Publisher', keyword: 'Title contains'}[w.kind]}: ${w.value} `;
 			li.appendChild(button('Remove', () =>
 				sendAPI('DELETE', '/extras/watchlist', api_key, {id: w.id}).then(() => loadWatchlist(api_key))));
 			ul.appendChild(li);

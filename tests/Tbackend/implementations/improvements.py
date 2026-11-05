@@ -133,7 +133,10 @@ class HardlinkTests(unittest.TestCase):
 class NotificationTests(unittest.TestCase):
     def test_discord_ntfy_and_plain(self):
         _, k = notifications.build_notification("https://discord.com/api/webhooks/1/x", "T", "M")
-        self.assertIn("content", k["json"])
+        self.assertEqual(k["json"]["embeds"][0]["color"], notifications.COLORS["info"])
+        _, k = notifications.build_notification("https://discord.com/api/webhooks/1/x", "T", "M", "failed")
+        self.assertEqual(k["json"]["embeds"][0]["color"], notifications.COLORS["failed"])
+        self.assertEqual(k["json"]["embeds"][0]["title"], "T")
         _, k = notifications.build_notification("https://ntfy.sh/mytopic", "Imported", "Saga 1")
         self.assertEqual(k["data"], b"Saga 1")
         _, k = notifications.build_notification("https://example.com/hook", "T", "M")

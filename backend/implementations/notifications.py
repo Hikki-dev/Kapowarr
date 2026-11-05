@@ -30,8 +30,13 @@ COUNTERS: Dict[str, int] = {"notifications_sent": 0, "notifications_failed": 0,
                             "komga_scans": 0, "komga_scans_failed": 0}
 
 
+COLORS = {"grabbed": 0x3498DB, "imported": 0x2ECC71, "failed": 0xE74C3C,
+          "info": 0x95A5A6}
+"Discord colour stripe per kind of message, like Sonarr and Radarr use"
+
+
 def build_notification(
-    url: str, title: str, message: str
+    url: str, title: str, message: str, kind: str = "info"
 ) -> Tuple[str, Dict[str, Any]]:
     """Make the request for a URL: ntfy, Discord or a plain JSON webhook.
 
@@ -40,7 +45,10 @@ def build_notification(
             `requests.post`.
     """
     if "discord.com/api/webhooks" in url or "discordapp.com/api/webhooks" in url:
-        return url, {"json": {"content": f"**{title}**\n{message}"[:1900]}}
+        return url, {"json": {"username": "Kapowarr", "embeds": [{
+            "title": title[:250], "description": message[:3500],
+            "color": COLORS.get(kind, COLORS["info"])
+        }]}}
 
     if "/ntfy" in url or "ntfy." in url or "ntfy:" in url:
         return url, {
@@ -62,14 +70,14 @@ def _in_background(function: Callable[[], None]) -> None:
     Thread(target=run, daemon=True).start()
 
 
-def notify(title: str, message: str) -> None:
+def notify(title: str, message: str, kind: str = "info") -> None:
     "Send a message to `KAPOWARR_NOTIFY_URL`, if it is set."
     url = environ.get("KAPOWARR_NOTIFY_URL", "").strip()
     if not url:
         return
 
     def send() -> None:
-        target, kwargs = build_notification(url, title, message)
+        target, kwargs = build_notification(url, title, message, kind)
         try:
             response = post(target, timeout=TIMEOUT, **kwargs)
             ok = response.ok
@@ -123,14 +131,20 @@ def scan_komga() -> None:
     return
 
 
+def grabbed(title: str) -> None:
+    "A download was started."
+    notify("Comic grabbed", title, "grabbed")
+    return
+
+
 def imported(title: str) -> None:
-    "A comic was imported: tell the user and have Komga look."
-    notify("Comic imported", title)
+    "A comic was downloaded and imported: tell the user and have Komga look."
+    notify("Comic imported", title, "imported")
     scan_komga()
     return
 
 
 def failed(title: str) -> None:
     "A download failed: tell the user."
-    notify("Download failed", title)
+    notify("Download failed", title, "failed")
     return

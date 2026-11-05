@@ -48,6 +48,11 @@ class WeekAndWatchlistTests(unittest.TestCase):
         self.assertTrue(releases.matches_watchlist(e, [("keyword", "batman")]))
         self.assertFalse(releases.matches_watchlist(e, [("keyword", "saga")]))
         self.assertFalse(releases.matches_watchlist(e, [("keyword", "  ")]))
+        absolute = {"title": "Absolute Batman (2024)", "publisher": "DC"}
+        self.assertTrue(releases.matches_watchlist(absolute, [("series", "absolute batman")]))
+        self.assertFalse(releases.matches_watchlist({"title": "Batman", "publisher": "DC"}, [("series", "Absolute Batman")]))
+        self.assertFalse(releases.matches_watchlist({"title": "Absolute Batman Special"}, [("series", "Absolute Batman")]))
+        self.assertFalse(releases.matches_watchlist({"title": None, "publisher": None}, [("series", "x")]))
         self.assertFalse(releases.matches_watchlist({"title": None, "publisher": None}, [("keyword", "x")]))
 
 
@@ -242,14 +247,14 @@ class MetronTests(unittest.TestCase):
             self.assertEqual(metron.first_issues(date(2026, 1, 1), date(2026, 1, 7)), [])
 
     def test_a_failing_call_gives_nothing(self):
-        env = {"KAPOWARR_METRON_USER": "u", "KAPOWARR_METRON_PASSWORD": "p"}
+        env = {"KAPOWARR_METRON_API_KEY": "k"}
         with mock.patch.dict(os.environ, env), mock.patch("requests.get", side_effect=RuntimeError):
             self.assertTrue(metron.enabled())
             self.assertEqual(metron.first_issues(date(2026, 1, 1), date(2026, 1, 7)), [])
 
     def test_comicvine_failure_falls_back_to_metron(self):
         db = make_db()
-        env = {"KAPOWARR_METRON_USER": "u", "KAPOWARR_METRON_PASSWORD": "p"}
+        env = {"KAPOWARR_METRON_API_KEY": "k"}
         with patched(db, releases, store), mock.patch.dict(os.environ, env), \
                 mock.patch.object(releases, "_comicvine_first_issues", side_effect=RuntimeError("rate limit")), \
                 mock.patch.object(metron, "first_issues", return_value=[{"comicvine_id": 9, "title": "Saga"}]):

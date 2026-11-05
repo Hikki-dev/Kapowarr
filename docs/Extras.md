@@ -6,7 +6,7 @@ Open **Extras** in the menu under Volumes. Everything on it uses what Kapowarr a
 
 * **In your library:** the issues of your series that go on sale in the chosen week, and whether you have them. This works without internet.
 * **New series starting:** the number ones that go on sale that week, from ComicVine. If ComicVine is blocked or out of requests and Metron is set up (below), Metron answers instead. Press **Add and search** to add one.
-* **Follow automatically:** add a **publisher** (it must match exactly, ignoring capitals, for example `Image`) or a **word in the title** (for example `Batman`). Once a day, new number ones that match are added to your first root folder, monitored, and searched for. A series is only ever followed once, and a message is sent if you have set up notifications. Without a watch list nothing is added by itself.
+* **Follow automatically:** the safest choice is a **series (exact name)**, such as `Absolute Batman`: only that title is followed (capitals and a year in brackets do not matter, and `Batman` or `Absolute Batman Special` are not matched). You can also add a **publisher** (it must match exactly, ignoring capitals, for example `Image`: everything that publisher starts) or a **word in the title** (for example `Batman`). Once a day, new number ones that match are added to your first root folder, monitored, and searched for. A series is only ever followed once, and a message is sent if you have set up notifications. Without a watch list nothing is added by itself.
 
 ## Requests
 
@@ -24,7 +24,7 @@ With Komga set up (`KAPOWARR_KOMGA_URL` and `KAPOWARR_KOMGA_API_KEY`, see [Notif
 
 ## Metron (optional)
 
-A free account on metron.cloud. Set `KAPOWARR_METRON_USER` and `KAPOWARR_METRON_PASSWORD`. It is only used for the calendar, and only when ComicVine fails. Metron series are linked to ComicVine through their `cv_id`; series without one cannot be added and are skipped.
+A free account on metron.cloud. Set `KAPOWARR_METRON_API_KEY` (metron.cloud, your profile, API key). It is only used for the calendar, and only when ComicVine fails. Metron series are linked to ComicVine through their `cv_id`; series without one cannot be added and are skipped.
 
 ## What was tested
 

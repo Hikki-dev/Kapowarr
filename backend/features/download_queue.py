@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Tuple, Union
 
 from typing_extensions import assert_never
 
+from backend.implementations import notifications
 from backend.base.custom_exceptions import (ClientNotWorking,
                                             DownloadLinkBroken,
                                             DownloadQueueEntryNotFound,
@@ -377,6 +378,7 @@ class DownloadHandler(metaclass=Singleton):
 
         ws = WebSocket()
         status_event = QueueStatusEvent(download)
+        notifications.grabbed(download.title)
         try:
             download.run()
 

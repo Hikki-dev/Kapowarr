@@ -55,7 +55,7 @@ def api_watchlist():
     if request.method == 'POST':
         data = _body()
         kind, value = data.get('kind'), (data.get('value') or '').strip()
-        if kind not in ('publisher', 'keyword'):
+        if kind not in ('series', 'publisher', 'keyword'):
             raise InvalidKeyValue('kind', kind)
         if not value:
             raise KeyNotFound('value')

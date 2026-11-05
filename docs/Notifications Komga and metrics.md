@@ -12,7 +12,15 @@ Set `KAPOWARR_NOTIFY_URL`:
 | Discord | the webhook URL (Server settings, Integrations, Webhooks) |
 | Anything else | any URL. It gets a JSON post: `{"title": "...", "message": "..."}` |
 
-A message is sent when a comic is **imported** ("Comic imported") and when a download **fails** ("Download failed").
+Three kinds of message are sent, like Sonarr and Radarr do:
+
+| Message | When | Discord colour |
+|---|---|---|
+| Comic grabbed | A download starts | blue |
+| Comic imported | The comic was downloaded and filed in your library | green |
+| Download failed | A download could not finish | red |
+
+On Discord each one is a small card with a coloured stripe.
 
 ## Komga
 
