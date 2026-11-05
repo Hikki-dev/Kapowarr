@@ -120,5 +120,22 @@ class TorrentTimeoutMigrationTests(unittest.TestCase):
         self.assertEqual(result, {'failing_download_timeout': 90})
 
 
+class DeleteCompletedMigrationTests(unittest.TestCase):
+    def run_step(self, rows):
+        db = sqlite3.connect(":memory:")
+        db.execute("CREATE TABLE config(key TEXT PRIMARY KEY, value)")
+        db.executemany("INSERT INTO config VALUES (?, ?)", rows)
+        with patch.object(dm, 'get_db', return_value=db):
+            dm.DatabaseMigrationHandler.handlers[39]()
+        return dict(db.execute("SELECT key, value FROM config").fetchall())
+
+    def test_database_of_version_1_0_without_the_setting(self):
+        self.assertEqual(self.run_step([('port', 5656)]), {'port': 5656})
+
+    def test_the_value_is_carried_over(self):
+        result = self.run_step([('delete_completed_torrents', 1), ('delete_completed_downloads', 0)])
+        self.assertEqual(result, {'delete_completed_downloads': 1})
+
+
 if __name__ == '__main__':
     unittest.main()

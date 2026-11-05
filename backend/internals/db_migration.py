@@ -1128,13 +1128,14 @@ def _migrate_torrent_timeout_to_download_timeout():
 def _migrate_delete_completed_torrents_to_downloads():
     cursor = get_db()
 
-    old_value = cursor.execute(
+    old = cursor.execute(
         "SELECT value FROM config WHERE key = 'delete_completed_torrents' LIMIT 1;"
-    ).fetchone()[0]
+    ).fetchone()
 
-    cursor.execute(
-        "UPDATE config SET value = ? WHERE key = 'delete_completed_downloads';",
-        (old_value,))
+    if old is not None:
+        cursor.execute(
+            "UPDATE config SET value = ? WHERE key = 'delete_completed_downloads';",
+            (old[0],))
 
     cursor.execute(
         "DELETE FROM config WHERE key = 'delete_completed_torrents';"
