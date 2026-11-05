@@ -16,6 +16,7 @@ from backend.implementations.conversion import mass_convert
 from backend.implementations.converters import extract_files_from_folder
 from backend.implementations.file_matching import scan_files
 from backend.implementations.file_processing import mass_process_files
+from backend.implementations import notifications
 from backend.implementations.naming import mass_rename
 from backend.implementations.volumes import Volume
 from backend.internals.db import commit, get_db
@@ -272,6 +273,7 @@ class PostProcessor:
         self.ctx.add_file_to_database()
         self.ctx.convert_file()
         self.ctx.set_file_properties()
+        notifications.imported(self.download.title)
         return
 
     def seeding(self) -> None:
@@ -294,6 +296,7 @@ class PostProcessor:
         self.ctx.add_to_history()
         commit()
         self.ctx.delete_file()
+        notifications.failed(self.download.title)
         return
 
     def perm_failed(self) -> None:
@@ -305,6 +308,7 @@ class PostProcessor:
         self.ctx.add_dl_to_blocklist()
         commit()
         self.ctx.delete_file()
+        notifications.failed(self.download.title)
         return
 
 
@@ -320,6 +324,7 @@ class PostProcessorTorrentsComplete(PostProcessor):
         commit()
         self.ctx.convert_file()
         self.ctx.set_file_properties()
+        notifications.imported(self.download.title)
         return
 
 
@@ -343,4 +348,5 @@ class PostProcessorTorrentsCopy(PostProcessor):
         self.ctx.set_file_properties()
         self.download.files = self.ctx.original_files
         commit()
+        notifications.imported(self.download.title)
         return

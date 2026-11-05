@@ -46,7 +46,12 @@ class ParseResultsTests(unittest.TestCase):
 
 
 class SearchCategoryTests(unittest.IsolatedAsyncioTestCase):
+    def setUp(self):
+        from backend.implementations.indexer_clients.torrent import Prowlarr
+        Prowlarr._cache.clear()  # answers are cached for ten minutes
+
     async def _search(self, answer):
+        self.setUp()
         from backend.implementations.indexer_clients.torrent.Prowlarr import \
             ProwlarrIndexer
         indexer = object.__new__(ProwlarrIndexer)

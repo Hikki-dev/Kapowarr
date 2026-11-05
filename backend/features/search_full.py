@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from asyncio import gather, run
-from typing import Dict, List, Set, Tuple, TypedDict, TypeVar, Union
+from typing import Any, Dict, List, Set, Tuple, TypedDict, TypeVar, Union
 
 from backend.base.definitions import (IndexerClient, IssueData,
                                       MatchedSearchResultData, QueryBuilder,
@@ -17,6 +17,12 @@ from backend.implementations.matching import check_search_result_match
 from backend.implementations.query_builder_manager import QueryBuilders
 from backend.implementations.search_action_planner import SearchActionPlanner
 from backend.implementations.volumes import Volume
+
+
+def is_dead_torrent(result: Dict[str, Any]) -> bool:
+    """Whether a result is a torrent that is known to have no seeders.
+    Results that do not say (direct downloads, or no number given) are fine."""
+    return result.get('seeders') == 0
 
 
 class IndexerTeam(TypedDict):
@@ -106,6 +112,9 @@ class SearchCoordinator:
         # Prefer matches (False == 0 == higher rank)
         rating.append(not result['match'])
 
+        # A torrent that nobody shares can never finish: put it last
+        rating.append(is_dead_torrent(result))
+
         # The more words in the search term that are present in
         # the search results' title, the higher ranked it gets
         split_title = title.split(' ')
@@ -189,6 +198,9 @@ class SearchCoordinator:
             elif isinstance(result['issue_number'], float):
                 rating.append(1)
                 rating.append(result["issue_number"])
+
+        # Between equal results, the one with more people sharing it wins
+        rating.append(-(result.get('seeders') or 0))
 
         return rating
 

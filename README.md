@@ -24,6 +24,7 @@ You add a series once. Kapowarr finds the issues, downloads them, renames them a
 * [What is different](#what-is-different): the four changes, side by side with the original
 * [How an issue travels](#how-an-issue-travels): from adding a series to a comic on your shelf
 * [Prowlarr, the quick way](#prowlarr-the-quick-way)
+* [Tell me when it happens](#tell-me-when-it-happens): messages, Komga, hardlinks and numbers
 * [Run it](#run-it): one command, or Compose, and what each setting is for
 * [Coming from an older copy](#coming-from-an-older-copy)
 * [Light on your computer](#light-on-your-computer)
@@ -41,6 +42,10 @@ Everything Kapowarr does is still here, including what the original added in Oct
 | Prowlarr as an indexer | One search asks every torrent site you set up in Prowlarr. Comics are searched first, so an answer comes in about ten seconds instead of more than a minute, and with results that are really comics. The API key travels in a header, so it never shows in a log |
 | The Internet Archive as an indexer | Finds public domain and archived comics and downloads the files directly. Titles such as "Batman: Year One" or "Saga (2012)" work, and the page images and text files the archive makes by itself are left out |
 | Torrent links that always work | Some sites give a magnet link, some a link that leads to one, some the `.torrent` file itself. All three are turned into a magnet link, whatever the site calls the file, and a file that is too big to be a real torrent is ignored |
+| Better results first | A torrent nobody shares is put last, and between equal results the one with more seeders comes first. If a search finds nothing, a looser one (without year, volume and issue number) is tried. The same search within ten minutes is answered from memory, so Prowlarr is not asked again |
+| Hardlinks | A finished torrent is hard linked into your library: instant, no second copy on the disk, and it keeps seeding. When the two folders are on different drives it is copied as before |
+| Tells you things | A message (ntfy, Discord or any webhook) when a comic is imported or a download fails, and Komga is asked to scan so the comic shows up at once. Both are switched on with environment variables |
+| Numbers to watch | `/api/system/metrics` gives queue size, library size and how Prowlarr is doing, for Homepage, Beszel or Prometheus |
 | Upgrading from an older copy | A database from the earlier version of this copy is brought over by itself. Your library, your downloads and your qBittorrent are kept, and your Prowlarr settings become a Prowlarr indexer |
 
 ## How an issue travels
@@ -57,6 +62,17 @@ Everything Kapowarr does is still here, including what the original added in Oct
 Open Settings, Indexers, add **Prowlarr**, and enter its address and API key. Kapowarr tests the connection and tells you if the key is wrong. If you install with [media-server-setup](https://github.com/Hikki-dev/media-server-setup), this is done for you.
 
 For torrents you also need a download client: Settings, Download Clients, add **qBittorrent**. Kapowarr must be able to see qBittorrent's download folder at the same path. See [Prowlarr and torrents](docs/Prowlarr%20and%20torrents.md) for the full steps.
+
+## Tell me when it happens
+
+Four optional features need no setting screen. Add the environment variable to the container and restart it. Full details are in [Notifications, Komga and metrics](docs/Notifications%20Komga%20and%20metrics.md).
+
+| Variable | What it does |
+|---|---|
+| `KAPOWARR_NOTIFY_URL` | An ntfy topic, a Discord webhook or any URL. Gets a message when a comic is imported and when a download fails |
+| `KAPOWARR_KOMGA_URL` with `KAPOWARR_KOMGA_API_KEY` | Starts a Komga scan after each import |
+| `KAPOWARR_HARDLINK=0` | Turns hardlinking off and always copies |
+| (always on) `/api/system/metrics` | Plain-text numbers for dashboards |
 
 ## Run it
 

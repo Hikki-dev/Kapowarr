@@ -7,7 +7,7 @@ from os import remove
 from os.path import basename, splitext
 from typing import Any, Dict, List, Tuple, Union
 
-from flask import Blueprint, after_this_request, request, send_file
+from flask import Blueprint, Response, after_this_request, request, send_file
 
 from backend.base.custom_exceptions import (InvalidDatabaseFile,
                                             InvalidKeyValue, KeyNotFound)
@@ -283,6 +283,14 @@ def api_public():
 @auth
 def api_about():
     return return_api(get_about_data())
+
+
+@api.route('/system/metrics', methods=['GET'])
+@error_handler
+@auth
+def api_metrics():
+    from backend.implementations.metrics import collect
+    return Response(collect(), mimetype='text/plain'), 200
 
 
 @api.route('/system/status', methods=['GET', 'DELETE'])

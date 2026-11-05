@@ -13,6 +13,12 @@ What is changed:
 7. `.github/workflows/ci.yml` (replaces `tests.yml` and `deploy.yml`): runs the tests on every change and publishes the image only when they pass.
 8. `.github/workflows/upstream-sync.yml` (new): the weekly merge of the original (see below).
 
+9. `backend/features/search_full.py`: a torrent known to have no seeders ranks last, and between equal results more seeders ranks first.
+10. `backend/implementations/indexer_clients/torrent/Prowlarr.py`: answers are remembered for ten minutes (200 searches at most), an empty answer is followed by one looser search (`looser_query`), and counters (`STATS`) feed the metrics page.
+11. `backend/base/files.py`: `link_or_copy` and `copy_function_for_import`: a finished torrent is hard linked into the library and copied when that is not possible. `KAPOWARR_HARDLINK=0` always copies.
+12. `backend/implementations/notifications.py` (new) and `backend/features/post_processing.py`: a message (ntfy, Discord or a JSON webhook) when a comic is imported or a download fails, and a Komga scan after an import. Environment variables only; every call runs in the background and can never stop an import.
+13. `backend/implementations/metrics.py` (new) and `frontend/api.py`: `/api/system/metrics`, plain text for dashboards.
+
 Checks that run offline on every change, next to the original's own:
 `tests/Tbackend/implementations/prowlarr_indexer.py`, `internet_archive_indexer.py`, `torrent_links.py`, `tests/Tbackend/implementations/download_clients/torrent_name.py` and `tests/Tbackend/internals/db_migration_fork.py`.
 

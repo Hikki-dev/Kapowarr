@@ -8,7 +8,7 @@ import ctypes
 from collections import deque
 from ctypes import wintypes
 from datetime import datetime
-from os import chmod, listdir, makedirs, remove, scandir, utime
+from os import chmod, link, listdir, makedirs, remove, scandir, utime, environ
 from os.path import (abspath, basename, commonpath, dirname, isdir,
                      isfile, join, relpath, samefile, sep, splitext)
 from re import compile
@@ -838,8 +838,34 @@ def copy_directory(source: str, target: str) -> None:
         source (str): The current folderpath of the source directory.
         target (str): The desired folderpath to where the directory should be copied.
     """
-    copytree(source, target, copy_function=copy)
+    copytree(source, target, copy_function=copy_function_for_import())
     return
+
+
+def link_or_copy(source: str, target: str) -> str:
+    """Hard link a file (instant, no extra disk space, and a torrent that is
+    still seeding keeps working), or copy it when linking is not possible,
+    for example when the two folders are on different drives.
+
+    Args:
+        source (str): The file to bring over.
+        target (str): Where it should end up.
+
+    Returns:
+        str: The target.
+    """
+    try:
+        link(source, target)
+    except OSError:
+        copy(source, target)
+    return target
+
+
+def copy_function_for_import():
+    "Hard link by default. Set `KAPOWARR_HARDLINK=0` to always copy."
+    if environ.get("KAPOWARR_HARDLINK", "1").strip().lower() in ("0", "false", "no"):
+        return copy
+    return link_or_copy
 
 
 # region Deletion

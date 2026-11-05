@@ -12,11 +12,23 @@ Prowlarr is the app that holds all your torrent sites. Kapowarr asks it once and
 
 How it searches: comics (category 7030) are asked first, so an answer comes in about ten seconds. Prowlarr may take up to 60 seconds in all, because it asks every site. Results that are not torrents are left out, and at most 100 are kept.
 
+### How results are chosen
+
+- A torrent with **no seeders** can never finish, so it goes last.
+- Between results that match equally well, the one with **more seeders** comes first.
+- If the exact search finds nothing, a **looser search** is tried once: the same words without the year, the volume (`v3`) and the issue number. Sites often write those in their own way.
+- The same search within **ten minutes** is answered from memory, so Prowlarr is not asked again. A failed search is never remembered.
+- A pack such as "Vol 1-12" is already understood by Kapowarr: it covers every issue in its range, so one download can fill many issues.
+
 ## qBittorrent (the download client)
 
 Torrents need a download client. In Settings, Download Clients, add **qBittorrent** with its address, user name and password.
 
 One thing matters: Kapowarr and qBittorrent must **see the download folder at the same path**. If qBittorrent saves to `/data/torrents`, then Kapowarr needs a mount that shows that folder at `/data/torrents` too (for example `-v /mnt/disk/torrents:/data/torrents`). Otherwise Kapowarr cannot find the finished file and cannot copy it into your library.
+
+## Hardlinks
+
+When a torrent has finished (and the seeding setting is "copy"), the files are **hard linked** into your comics folder. That is instant, uses no extra disk space, and qBittorrent keeps seeding the same data. A hardlink only works inside one drive; when your download folder and your library are on different drives, the files are copied, exactly as before. To always copy, set `KAPOWARR_HARDLINK=0`.
 
 ## Torrent links
 

@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
+import re
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Union
+from time import monotonic
+from typing import Any, Dict, List, Tuple, Union
 
 from aiohttp import ClientTimeout
 from requests import RequestException
@@ -20,6 +22,37 @@ SEARCH_TIMEOUT_SECONDS = 60
 "Prowlarr asks every one of its indexers; a slow one should not cut the rest off"
 COMICS_CATEGORY = 7030
 MAX_RESULTS = 100
+CACHE_SECONDS = 600
+"The same search within ten minutes gets the same answer, without asking every site again"
+CACHE_LIMIT = 200
+
+STATS: Dict[str, float] = {
+    "searches": 0, "cache_hits": 0, "fallback_searches": 0,
+    "failures": 0, "last_seconds": 0.0, "results": 0
+}
+"What the metrics page shows about Prowlarr"
+
+_cache: Dict[str, Tuple[float, Any]] = {}
+
+_NOISE = re.compile(
+    r"\(\s*(?:19|20)\d{2}\s*\)|#\s*\d+[\w.]*|\bv(?:ol(?:ume)?\.?)?\s*\d+\b|"
+    r"\b(?:19|20)\d{2}\b",
+    re.IGNORECASE
+)
+
+
+def looser_query(query: str) -> str:
+    """The same search without the year, volume and issue number, for when
+    the exact one finds nothing (sites often write "Batman 003" or "Batman
+    v3 #3" in ways that never match the exact words).
+
+    Returns:
+        str: The looser query, or "" when it would not be any looser.
+    """
+    loose = " ".join(_NOISE.sub(" ", query).split())
+    if loose and loose.lower() != query.lower().strip():
+        return loose
+    return ""
 
 
 def parse_results(
@@ -123,21 +156,51 @@ class ProwlarrIndexer(BaseIndexerClient):
             LOGGER.exception("Failed to search Prowlarr")
             return None
 
+    async def _cached_request(self, params: Dict[str, Any]) -> Any:
+        "Ask Prowlarr, or reuse an answer from the last ten minutes."
+        key = repr(sorted(params.items()))
+        hit = _cache.get(key)
+        if hit and monotonic() - hit[0] < CACHE_SECONDS:
+            STATS["cache_hits"] += 1
+            return hit[1]
+
+        started = monotonic()
+        answer = await self.__request(params)
+        STATS["searches"] += 1
+        STATS["last_seconds"] = round(monotonic() - started, 2)
+        if answer is None:
+            STATS["failures"] += 1
+            return answer
+
+        if len(_cache) >= CACHE_LIMIT:
+            _cache.pop(next(iter(_cache)))
+        _cache[key] = (monotonic(), answer)
+        return answer
+
     async def search(self, query: SearchQuery) -> QueryResult:
         # Only the comics category: Prowlarr then asks the indexers that have
         # comics and answers in about ten seconds, with results that are about
         # comics. Searching every category takes over a minute per query and
         # mostly returns films and shows.
-        answer = await self.__request({
+        params = {
             "query": query["query"],
             "type": "search",
             "categories": COMICS_CATEGORY,
             "limit": MAX_RESULTS
-        })
-        return QueryResult(
-            parse_results(answer, self._id, self._title),
-            next_page_available=False
+        }
+        found = parse_results(
+            await self._cached_request(params), self._id, self._title
         )
+        if not found:
+            loose = looser_query(query["query"])
+            if loose:
+                STATS["fallback_searches"] += 1
+                found = parse_results(
+                    await self._cached_request({**params, "query": loose}),
+                    self._id, self._title
+                )
+        STATS["results"] += len(found)
+        return QueryResult(found, next_page_available=False)
 
     async def discover(self, last_check: datetime) -> List[SearchResultData]:
         # An empty query gives the newest releases, like an RSS feed
