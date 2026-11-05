@@ -68,7 +68,7 @@
 		{% endblock %}
 	</header>
 
-	{% macro ico(name) %}<span class="ico" aria-hidden="true" style="--i: url('{{url_base}}/static/img/ui/{{name}}.svg')"></span>{% endmacro %}
+	{% macro ico(name) %}<span class="ico" aria-hidden="true">{% include "icons/" ~ name ~ ".svg" %}</span>{% endmacro %}
 	{% macro item(href, icon, label, current, id='') %}<a href="{{url_base}}{{href}}" class="{% if current %}current-nav{% endif %}" {% if current %}aria-current="page"{% endif %} {% if id %}id="{{id}}"{% endif %}>{{ ico(icon) }}<span>{{label}}</span></a>{% endmacro %}
 
 	<div class="nav-main">

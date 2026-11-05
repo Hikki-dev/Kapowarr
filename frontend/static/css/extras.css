@@ -161,6 +161,8 @@ small { font-weight: 400; color: var(--dimmed-text-color); font-size: 13px; }
 .cal-week-day.today { border-color: var(--accent-color); box-shadow: 0 0 0 1px var(--accent-color); }
 .cal-week-head { width: 100%; padding: 8px 12px; border: 0; border-bottom: 1px solid var(--border-color); background-color: var(--surface-2); color: var(--text-color); font-size: 13px; font-weight: 500; text-align: left; cursor: pointer; }
 .cal-none { padding: 8px 12px; color: var(--dimmed-text-color); font-size: 13px; }
+.cal-week-day.empty { display: flex; align-items: center; justify-content: space-between; }
+.cal-week-day.empty .cal-week-head { width: auto; border-bottom: 0; background: transparent; }
 .cal-table { width: 100%; border-collapse: collapse; background-color: var(--foreground-color); border: 1px solid var(--border-color); border-radius: 6px; }
 .cal-week-day .cal-table { border: 0; border-radius: 0; }
 .cal-table td { padding: 0 12px; height: 40px; border-top: 1px solid var(--border-color); }

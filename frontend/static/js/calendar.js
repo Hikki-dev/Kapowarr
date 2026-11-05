@@ -137,7 +137,8 @@ function renderWeek(r) {
 		head.onclick = () => setView('day', day);
 		row.appendChild(head);
 		const items = byDay[day] || [];
-		row.appendChild(items.length ? dayTable(items) : node('p', 'cal-none', 'Nothing out'));
+		if (items.length) row.appendChild(dayTable(items));
+		else { row.classList.add('empty'); row.appendChild(node('span', 'cal-none', 'Nothing out')); }
 		wrap.appendChild(row);
 	};
 	return wrap;

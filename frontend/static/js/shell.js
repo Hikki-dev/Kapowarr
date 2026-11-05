@@ -30,11 +30,22 @@
 		if (text !== undefined) e.textContent = text;
 		return e;
 	};
+	// Two small icons for the setup card, drawn inline so they follow the text colour.
+	const PATHS = {
+		check_circle_fill: 'm424-296 282-282-56-56-226 226-114-114-56 56 170 170Zm56 216q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Z',
+		radio_button_unchecked: 'M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z'
+	};
 	const ico = name => {
-		const s = el('span', 'ico');
-		s.setAttribute('aria-hidden', 'true');
-		s.style.setProperty('--i', `url('${base()}/static/img/ui/${name}.svg')`);
-		return s;
+		const NS = 'http://www.w3.org/2000/svg';
+		const wrap = el('span', 'ico');
+		wrap.setAttribute('aria-hidden', 'true');
+		const svg = document.createElementNS(NS, 'svg');
+		svg.setAttribute('viewBox', '0 -960 960 960');
+		const path = document.createElementNS(NS, 'path');
+		path.setAttribute('d', PATHS[name]);
+		svg.appendChild(path);
+		wrap.appendChild(svg);
+		return wrap;
 	};
 	const api = (endpoint) => (typeof usingApiKey === 'function' && typeof fetchAPI === 'function')
 		? usingApiKey(false).then(key => key ? fetchAPI(endpoint, key) : Promise.reject('no key'))
