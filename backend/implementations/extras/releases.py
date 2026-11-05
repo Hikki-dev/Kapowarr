@@ -11,9 +11,10 @@ The release calendar: what comes out this week, and which new series start.
 """
 
 import re
+from calendar import monthrange
 from datetime import date, timedelta
 from time import time
-from typing import Any, Dict, Iterable, List, Sequence, Tuple
+from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 
 from backend.base.logging import LOGGER
 from backend.implementations.extras import metron
@@ -25,6 +26,69 @@ def week_bounds(day: date) -> Tuple[date, date]:
     "Monday and Sunday of the week that holds `day`."
     monday = day - timedelta(days=day.weekday())
     return monday, monday + timedelta(days=6)
+
+
+VIEWS = ("day", "week", "month", "year")
+MAX_UPCOMING_MONTHS = 24
+
+
+def parse_day(value: Optional[str], default: date) -> date:
+    "A `YYYY-MM-DD` text as a date. Nothing given means `default`; anything else raises ValueError."
+    if value is None or value == "":
+        return default
+    return date.fromisoformat(value)
+
+
+def add_months(day: date, months: int) -> date:
+    "`day` moved by whole months. The day of the month is kept, or the last day when the month is shorter (31 Jan + 1 month = 28 or 29 Feb)."
+    index = day.year * 12 + (day.month - 1) + months
+    year, month = divmod(index, 12)
+    month += 1
+    return date(year, month, min(day.day, monthrange(year, month)[1]))
+
+
+def view_bounds(view: str, anchor: date) -> Tuple[date, date]:
+    "First and last day shown by a view that is centred on `anchor`."
+    if view == "day":
+        return anchor, anchor
+    if view == "week":
+        return week_bounds(anchor)
+    if view == "month":
+        return (anchor.replace(day=1),
+                anchor.replace(day=monthrange(anchor.year, anchor.month)[1]))
+    if view == "year":
+        return date(anchor.year, 1, 1), date(anchor.year, 12, 31)
+    raise ValueError(f"unknown view: {view}")
+
+
+def shift_anchor(view: str, anchor: date, steps: int) -> date:
+    "The anchor of the previous (-1) or next (+1) period of a view."
+    if view == "day":
+        return anchor + timedelta(days=steps)
+    if view == "week":
+        return anchor + timedelta(weeks=steps)
+    if view == "month":
+        return add_months(anchor, steps)
+    if view == "year":
+        return add_months(anchor, 12 * steps)
+    raise ValueError(f"unknown view: {view}")
+
+
+def grid_bounds(start: date, end: date) -> Tuple[date, date]:
+    "A month as whole weeks: from the Monday on or before `start` to the Sunday on or after `end`."
+    return week_bounds(start)[0], week_bounds(end)[1]
+
+
+def release_state(
+    release: Dict[str, Any], today: date
+) -> str:
+    """One word for how an issue stands:
+    `downloaded`, `wanted` (out and missing), `upcoming` (not out yet) or `unmonitored`."""
+    if release["has_file"]:
+        return "downloaded"
+    if not release["monitored"]:
+        return "unmonitored"
+    return "upcoming" if release["date"] > today.isoformat() else "wanted"
 
 
 def library_releases(start: date, end: date) -> List[Dict[str, Any]]:
@@ -44,6 +108,61 @@ def library_releases(start: date, end: date) -> List[Dict[str, Any]]:
          "has_file": bool(r[6])}
         for r in rows
     ]
+
+
+def month_summary(year: int, today: date) -> List[Dict[str, Any]]:
+    "For each month of a year: how many issues come out, and how they stand."
+    ensure_tables()
+    summary = [
+        {"month": m, "total": 0, "downloaded": 0, "wanted": 0,
+         "upcoming": 0, "unmonitored": 0}
+        for m in range(1, 13)
+    ]
+    for r in library_releases(date(year, 1, 1), date(year, 12, 31)):
+        month = int(r["date"][5:7])
+        entry = summary[month - 1]
+        entry["total"] += 1
+        entry[release_state(r, today)] += 1
+    return summary
+
+
+def upcoming(today: date, months: int, limit: int = 300) -> Dict[str, Any]:
+    """What is still to come in the next `months` months (1 to 24):
+    every issue with a date from today on, and the next one of each series."""
+    months = max(1, min(int(months), MAX_UPCOMING_MONTHS))
+    end = add_months(today, months)
+    rows = library_releases(today, end)
+    for r in rows:
+        r["state"] = release_state(r, today)
+        r["days_away"] = (date.fromisoformat(r["date"]) - today).days
+    next_up: Dict[int, Dict[str, Any]] = {}
+    for r in rows:
+        next_up.setdefault(r["volume_id"], r)
+    return {"start": today.isoformat(), "end": end.isoformat(),
+            "months": months, "releases": rows[:limit],
+            "truncated": len(rows) > limit,
+            "next_per_series": sorted(next_up.values(), key=lambda r: (r["date"], r["volume_title"]))}
+
+
+def calendar(view: str, anchor: date, today: date) -> Dict[str, Any]:
+    "Everything the calendar page needs for one period."
+    start, end = view_bounds(view, anchor)
+    result: Dict[str, Any] = {
+        "view": view, "anchor": anchor.isoformat(), "today": today.isoformat(),
+        "start": start.isoformat(), "end": end.isoformat(),
+        "prev": shift_anchor(view, anchor, -1).isoformat(),
+        "next": shift_anchor(view, anchor, 1).isoformat(),
+    }
+    if view == "year":
+        result["months"] = month_summary(anchor.year, today)
+        return result
+    shown_start, shown_end = (grid_bounds(start, end) if view == "month" else (start, end))
+    result["grid_start"], result["grid_end"] = shown_start.isoformat(), shown_end.isoformat()
+    rows = library_releases(shown_start, shown_end)
+    for r in rows:
+        r["state"] = release_state(r, today)
+    result["releases"] = rows
+    return result
 
 
 def _plain(title: str) -> str:

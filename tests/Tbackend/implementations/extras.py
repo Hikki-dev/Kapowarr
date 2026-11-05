@@ -71,6 +71,129 @@ class LibraryReleasesTests(unittest.TestCase):
         self.assertFalse(rows[1]["has_file"])
 
 
+class CalendarViewTests(unittest.TestCase):
+    "Day, week, month and year: the edges of dates."
+
+    def test_bounds_of_each_view(self):
+        d = date(2026, 11, 5)  # a Thursday
+        self.assertEqual(releases.view_bounds("day", d), (d, d))
+        self.assertEqual(releases.view_bounds("week", d), (date(2026, 11, 2), date(2026, 11, 8)))
+        self.assertEqual(releases.view_bounds("month", d), (date(2026, 11, 1), date(2026, 11, 30)))
+        self.assertEqual(releases.view_bounds("year", d), (date(2026, 1, 1), date(2026, 12, 31)))
+        with self.assertRaises(ValueError):
+            releases.view_bounds("decade", d)
+
+    def test_leap_year_february(self):
+        self.assertEqual(releases.view_bounds("month", date(2028, 2, 10))[1], date(2028, 2, 29))
+        self.assertEqual(releases.view_bounds("month", date(2027, 2, 10))[1], date(2027, 2, 28))
+
+    def test_moving_between_periods_keeps_a_valid_day(self):
+        self.assertEqual(releases.shift_anchor("month", date(2026, 1, 31), 1), date(2026, 2, 28))
+        self.assertEqual(releases.shift_anchor("month", date(2028, 1, 31), 1), date(2028, 2, 29))
+        self.assertEqual(releases.shift_anchor("month", date(2026, 12, 15), 1), date(2027, 1, 15))
+        self.assertEqual(releases.shift_anchor("month", date(2026, 1, 15), -1), date(2025, 12, 15))
+        self.assertEqual(releases.shift_anchor("year", date(2028, 2, 29), 1), date(2029, 2, 28))
+        self.assertEqual(releases.shift_anchor("week", date(2026, 12, 30), 1), date(2027, 1, 6))
+        self.assertEqual(releases.shift_anchor("day", date(2026, 12, 31), 1), date(2027, 1, 1))
+
+    def test_month_grid_is_whole_weeks_monday_to_sunday(self):
+        start, end = releases.view_bounds("month", date(2026, 11, 5))
+        first, last = releases.grid_bounds(start, end)
+        self.assertEqual((first, last), (date(2026, 10, 26), date(2026, 12, 6)))
+        self.assertEqual(first.weekday(), 0)
+        self.assertEqual(last.weekday(), 6)
+        # a month that starts on a Monday and ends on a Sunday needs no padding
+        self.assertEqual(releases.grid_bounds(date(2026, 6, 1), date(2026, 6, 30)), (date(2026, 6, 1), date(2026, 7, 5)))
+
+    def test_parse_day(self):
+        today = date(2026, 11, 5)
+        self.assertEqual(releases.parse_day(None, today), today)
+        self.assertEqual(releases.parse_day("", today), today)
+        self.assertEqual(releases.parse_day("2026-02-28", today), date(2026, 2, 28))
+        for bad in ("2026-02-30", "11/05/2026", "tomorrow", "2026-13-01"):
+            with self.assertRaises(ValueError):
+                releases.parse_day(bad, today)
+
+    def test_state_words(self):
+        today = date(2026, 11, 5)
+        r = lambda **k: {"has_file": False, "monitored": True, "date": "2026-11-01", **k}
+        self.assertEqual(releases.release_state(r(has_file=True), today), "downloaded")
+        self.assertEqual(releases.release_state(r(), today), "wanted")
+        self.assertEqual(releases.release_state(r(date="2026-11-05"), today), "wanted")  # out today
+        self.assertEqual(releases.release_state(r(date="2026-11-06"), today), "upcoming")
+        self.assertEqual(releases.release_state(r(monitored=False), today), "unmonitored")
+        # a file wins over everything else
+        self.assertEqual(releases.release_state(r(has_file=True, monitored=False, date="2030-01-01"), today), "downloaded")
+
+    def _db(self):
+        db = make_db()
+        db.executescript("""
+            INSERT INTO volumes VALUES (1, 100, 'Saga', 2012, 1), (2, 200, 'Ms. Marvel', 2014, 1);
+            INSERT INTO issues VALUES
+              (1, 1, '5', 5, '2026-11-04', 1), (2, 1, '6', 6, '2026-12-02', 1), (3, 1, '7', 7, '2027-01-06', 1),
+              (4, 2, '12', 12, '2026-11-30', 1), (5, 2, '13', 13, NULL, 1), (6, 2, '1', 1, '2026-02-28', 1),
+              (7, 2, '2', 2, '2028-02-29', 0);
+            INSERT INTO files VALUES (1, '/c/saga5.cbz', 1); INSERT INTO issues_files VALUES (1, 1);
+        """)
+        return db
+
+    def test_month_view_includes_the_grid_days_around_it(self):
+        with patched(self._db(), releases, store):
+            r = releases.calendar("month", date(2026, 12, 15), date(2026, 11, 5))
+        self.assertEqual((r["start"], r["end"]), ("2026-12-01", "2026-12-31"))
+        self.assertEqual((r["grid_start"], r["grid_end"]), ("2026-11-30", "2027-01-03"))
+        self.assertEqual([x["issue_number"] for x in r["releases"]], ["12", "6"])  # Nov 30 is shown in the grid
+        self.assertEqual((r["prev"], r["next"]), ("2026-11-15", "2027-01-15"))
+
+    def test_undated_issues_never_appear(self):
+        with patched(self._db(), releases, store):
+            rows = releases.library_releases(date(2026, 1, 1), date(2030, 12, 31))
+        self.assertNotIn("13", [x["issue_number"] for x in rows])
+        self.assertEqual(len(rows), 6)
+
+    def test_year_view_counts_per_month(self):
+        with patched(self._db(), releases, store):
+            r = releases.calendar("year", date(2026, 6, 1), date(2026, 11, 5))
+        self.assertEqual(len(r["months"]), 12)
+        self.assertEqual(r["months"][1]["total"], 1)       # Feb 2026: Ms. Marvel #1
+        self.assertEqual(r["months"][10]["downloaded"], 1)  # Nov: Saga #5 has a file
+        self.assertEqual(r["months"][10]["upcoming"], 1)    # Nov 30 is after today
+        self.assertEqual(r["months"][10]["wanted"], 0)
+        self.assertNotIn("releases", r)
+
+    def test_year_view_states_add_up(self):
+        with patched(self._db(), releases, store):
+            months = releases.month_summary(2026, date(2026, 11, 5))
+        for m in months:
+            self.assertEqual(m["total"], m["downloaded"] + m["wanted"] + m["upcoming"] + m["unmonitored"])
+
+    def test_empty_library_gives_empty_periods(self):
+        with patched(make_db(), releases, store):
+            self.assertEqual(releases.calendar("week", date(2026, 11, 5), date(2026, 11, 5))["releases"], [])
+            self.assertEqual(sum(m["total"] for m in releases.calendar("year", date(2026, 11, 5), date(2026, 11, 5))["months"]), 0)
+            self.assertEqual(releases.upcoming(date(2026, 11, 5), 3)["next_per_series"], [])
+
+    def test_upcoming_lists_the_next_issue_of_each_series(self):
+        with patched(self._db(), releases, store):
+            r = releases.upcoming(date(2026, 11, 5), 3)
+        self.assertEqual([(x["volume_title"], x["issue_number"]) for x in r["next_per_series"]],
+                         [("Ms. Marvel", "12"), ("Saga", "6")])
+        self.assertEqual(r["next_per_series"][0]["days_away"], 25)
+        self.assertEqual(r["end"], "2027-02-05")
+        self.assertFalse(r["truncated"])
+
+    def test_upcoming_range_is_clamped_and_truncated(self):
+        with patched(self._db(), releases, store):
+            self.assertEqual(releases.upcoming(date(2026, 11, 5), 0)["months"], 1)
+            self.assertEqual(releases.upcoming(date(2026, 11, 5), 999)["months"], releases.MAX_UPCOMING_MONTHS)
+            self.assertTrue(releases.upcoming(date(2026, 11, 5), 12, limit=1)["truncated"])
+
+    def test_today_is_included_in_upcoming(self):
+        with patched(self._db(), releases, store):
+            r = releases.upcoming(date(2026, 11, 4), 1)
+        self.assertEqual(r["next_per_series"][0]["days_away"], 0)
+
+
 class FollowTests(unittest.TestCase):
     ENTRIES = [
         {"comicvine_id": 1, "title": "Absolute Batman", "publisher": "DC Comics", "in_library": False},

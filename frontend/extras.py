@@ -2,7 +2,7 @@
 
 """The endpoints of the extra features: /api/extras/..."""
 
-from datetime import date, timedelta
+from datetime import date
 from typing import Any
 
 from flask import Blueprint, request
@@ -25,22 +25,47 @@ def _body() -> dict:
     return data
 
 
+def _day_arg(name: str, default: date) -> date:
+    try:
+        return releases.parse_day(request.args.get(name), default)
+    except ValueError:
+        raise InvalidKeyValue(name, request.args.get(name))
+
+
 @extras.route('/extras/calendar', methods=['GET'])
 @error_handler
 @auth
 def api_calendar():
-    today = date.today()
-    start, end = releases.week_bounds(today + timedelta(weeks=int(request.args.get('week', 0))))
-    return return_api({"start": start.isoformat(), "end": end.isoformat(),
-                       "releases": releases.library_releases(start, end)})
+    "One period of the calendar. `view` is day, week, month or year; `date` is any day in it; `today` is the caller's own date."
+    view = request.args.get('view', 'week')
+    if view not in releases.VIEWS:
+        raise InvalidKeyValue('view', view)
+    today = _day_arg('today', date.today())
+    anchor = _day_arg('date', today)
+    return return_api(releases.calendar(view, anchor, today))
+
+
+@extras.route('/extras/calendar/upcoming', methods=['GET'])
+@error_handler
+@auth
+def api_calendar_upcoming():
+    "What is still to come in the next few months (1 to 24)."
+    try:
+        months = int(request.args.get('months', 3))
+    except ValueError:
+        raise InvalidKeyValue('months', request.args.get('months'))
+    return return_api(releases.upcoming(_day_arg('today', date.today()), months))
 
 
 @extras.route('/extras/calendar/new', methods=['GET'])
 @error_handler
 @auth
 def api_calendar_new():
-    today = date.today()
-    start, end = releases.week_bounds(today + timedelta(weeks=int(request.args.get('week', 0))))
+    "New series that start in a period (not for the year view: too many questions to ComicVine)."
+    view = request.args.get('view', 'week')
+    if view not in ('day', 'week', 'month'):
+        raise InvalidKeyValue('view', view)
+    start, end = releases.view_bounds(view, _day_arg('date', _day_arg('today', date.today())))
     entries, source = releases.first_issues(start, end)
     return return_api({"start": start.isoformat(), "end": end.isoformat(),
                        "source": source, "series": entries})

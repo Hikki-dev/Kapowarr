@@ -4,6 +4,7 @@
 	<link rel="stylesheet" href="{{ url_for('static', filename='css/extras.css') }}">
 {% endblock %}
 {% block js %}
+	<script src="{{ url_for('static', filename='js/calendar.js') }}" defer></script>
 	<script src="{{ url_for('static', filename='js/extras.js') }}" defer></script>
 {% endblock %}
 
@@ -21,14 +22,42 @@
 	</section>
 	<div class="main-window">
 		<section id="tab-calendar" class="tab">
-			<p>
-				<button id="week-prev">&larr; Earlier week</button>
-				<strong id="week-label"></strong>
-				<button id="week-next">Later week &rarr;</button>
-			</p>
-			<h2>In your library</h2>
-			<div class="table-container"><table><thead><tr><th>Date</th><th>Series</th><th>Issue</th><th>State</th></tr></thead><tbody id="cal-library"></tbody></table></div>
+			<div class="cal-top">
+				<div class="seg" id="cal-views" role="group" aria-label="Calendar view">
+					<button type="button" data-view="day">Day</button>
+					<button type="button" data-view="week">Week</button>
+					<button type="button" data-view="month" class="on">Month</button>
+					<button type="button" data-view="year">Year</button>
+				</div>
+				<div class="cal-nav">
+					<button type="button" id="cal-prev" aria-label="Previous period">&lsaquo;</button>
+					<button type="button" id="cal-today">Today</button>
+					<button type="button" id="cal-next" aria-label="Next period">&rsaquo;</button>
+				</div>
+				<strong id="cal-label" aria-live="polite"></strong>
+			</div>
+			<ul id="cal-legend" class="legend" aria-label="What the colours mean">
+				<li><span class="state state-downloaded">Downloaded</span></li>
+				<li><span class="state state-wanted">Wanted</span> out, still missing</li>
+				<li><span class="state state-upcoming">Not out yet</span></li>
+				<li><span class="state state-unmonitored">Not monitored</span></li>
+			</ul>
+			<div id="cal-body"></div>
+
+			<h2>Coming up
+				<select id="up-months" aria-label="How far ahead">
+					<option value="1">next month</option>
+					<option value="3" selected>next 3 months</option>
+					<option value="6">next 6 months</option>
+					<option value="12">next year</option>
+				</select>
+			</h2>
+			<p>The next issue of each series in your library that has a date.</p>
+			<ul id="up-list" class="up-list"></ul>
+
 			<h2>New series starting <small id="cal-source"></small></h2>
+			<p>Brand new series for the period shown above. This asks ComicVine, so it only runs when you press the button.</p>
+			<p><button type="button" id="cal-new-load">Look up new series for this period</button></p>
 			<div class="table-container"><table><thead><tr><th>Date</th><th>Series</th><th>Publisher</th><th></th></tr></thead><tbody id="cal-new"></tbody></table></div>
 			<h2>Follow automatically</h2>
 			<p>Pick exactly what to follow. A series (exact name) such as <em>Absolute Batman</em> only follows that title. A publisher or a word in the title is broader. Matching new series are added and searched for. Checked once a day.</p>
