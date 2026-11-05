@@ -52,6 +52,6 @@ jobs:
         if: env.UPTODATE != '1' && env.TESTED != '1'
         run: |
           gh issue list --label upstream-sync --state open --json number --jq 'length' | grep -q '^0$' || exit 0
-          gh label create upstream-sync --color eac700 --description "The original has new work that needs a hand" 2>/dev/null || true
+          gh label create upstream-sync --color eac700 --description "The original has new work that needs a hand" --force
           gh issue create --label upstream-sync --title "The original has new work that does not merge cleanly" \
             --body "Run: git fetch upstream development && git merge upstream/development, fix the conflicts, run the tests, and check the migrations."
