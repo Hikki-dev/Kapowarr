@@ -1,0 +1,60 @@
+/* Avengers: opening the comic. Navy cover stock, red and gold, white panel
+   gutters, yellow caption boxes, an arc reactor in the corner. */
+html[data-kp="avengers"]:root {
+	--ink: #0b1226; --comic-red: #c8102e; --comic-blue: #1f4aa8; --comic-yellow: #d4af37;
+	--paper: #0f1830; --background-color: #0f1830; --foreground-color: #16224a;
+	--text-color: #f2f4fb; --dimmed-text-color: #a7b2d6; --border-color: #d4af37;
+	--light-color: #fff; --dark-color: #0b1226; --darker-color: #16224a; --mid-color: #d4af37;
+	--hover-color: #1c2b5c; --nav-background-color: #0b1226; --tool-bar-color: #0b1226;
+	--header-background-color: #c8102e; --success-color: #5b8cff; --accent-color: #d4af37;
+	--info-color: #5b8cff; --off-light-color: #16224a;
+}
+html[data-kp="avengers"] h1, html[data-kp="avengers"] h2, html[data-kp="avengers"] h3,
+html[data-kp="avengers"] nav a, html[data-kp="avengers"] .here-tag, html[data-kp="avengers"] .menu-title-container::after {
+	font-family: 'Oswald', Impact, sans-serif; font-weight: 600; text-transform: uppercase; letter-spacing: .08em;
+}
+html[data-kp="avengers"] header { background: #c8102e; border-bottom: 5px solid #d4af37; }
+html[data-kp="avengers"] .menu-title-container::after { content: "KAPOWARR"; background: #0b1226; color: #d4af37; border: 3px solid #fff; border-radius: 0; box-shadow: 4px 4px 0 #0b1226; text-shadow: none; transform: none; font-size: 1.7rem; letter-spacing: .18em; }
+html[data-kp="avengers"] .menu-title-container > a { background: radial-gradient(#fff 0 18%, #9fe6ff 22% 36%, #0b1226 40%); border: 3px solid #d4af37; border-radius: 50%; box-shadow: 0 0 12px #9fe6ff; }
+html[data-kp="avengers"] .here-bar { background: #0b1226; border-bottom: 3px solid #1f4aa8; }
+html[data-kp="avengers"] .here-bar .here-tag { background: #ffe066; color: #111; border: 2px solid #111; border-radius: 0; font-family: 'Comic Neue', cursive; font-weight: 700; text-transform: none; letter-spacing: 0; }
+html[data-kp="avengers"] .here-bar .here-hint, html[data-kp="avengers"] .here-bar a { color: #d4af37; }
+html[data-kp="avengers"] #nav-bar { background: #0b1226; border-right: 5px solid #fff; }
+html[data-kp="avengers"] nav a { border-left: 6px solid #c8102e; font-size: 1.1rem; }
+html[data-kp="avengers"] .sub-nav a { font-family: 'Comic Neue', cursive; font-weight: 700; text-transform: none; letter-spacing: 0; font-size: 1.05rem; }
+html[data-kp="avengers"] nav a:hover { color: #d4af37; }
+html[data-kp="avengers"] .current-nav { background: #d4af37 !important; color: #0b1226 !important; border-left-color: #fff !important; }
+html[data-kp="avengers"] .tool-bar-container { border-bottom: 5px solid #fff; }
+/* posters are comic-page panels: white gutter, caption-box status */
+html[data-kp="avengers"] .list-entry { border: 5px solid #fff; border-radius: 0; box-shadow: none; background: #16224a; color: #fff; }
+html[data-kp="avengers"] .list-entry:hover { box-shadow: 0 0 0 3px #d4af37; transform: none; }
+html[data-kp="avengers"] .list-img { border-bottom: 3px solid #fff; }
+html[data-kp="avengers"] .list-prog-container { background: #0b1226; color: #fff; border-color: #fff; }
+html[data-kp="avengers"] .list-togo { background: #ffe066; color: #111; border: 2px solid #111; border-radius: 0; font-family: 'Comic Neue', cursive; font-weight: 700; font-size: 1rem; }
+html[data-kp="avengers"] .list-togo.done { background: #5b8cff; color: #fff; }
+html[data-kp="avengers"] form button[type="submit"], html[data-kp="avengers"] .window button[type="submit"],
+html[data-kp="avengers"] .window button[type="button"] { background: #c8102e; color: #fff; border: 3px solid #fff; border-radius: 0; box-shadow: 4px 4px 0 #d4af37; font-family: 'Oswald', sans-serif; font-size: 1.05rem; text-transform: uppercase; letter-spacing: .1em; }
+html[data-kp="avengers"] select, html[data-kp="avengers"] input[type="text"], html[data-kp="avengers"] input[type="password"],
+html[data-kp="avengers"] input[type="number"] { background: #0b1226; color: #fff; border: 3px solid #fff; border-radius: 0; }
+html[data-kp="avengers"] thead th { background: #c8102e; color: #fff; font-family: 'Oswald', sans-serif; letter-spacing: .1em; text-transform: uppercase; }
+html[data-kp="avengers"] tbody tr { border-bottom-color: #2a3a78; }
+html[data-kp="avengers"] .window > section { border: 5px solid #fff; border-radius: 0; box-shadow: 8px 8px 0 #c8102e; background: #16224a; color: #fff; }
+html[data-kp="avengers"] .window > section > .window-header { background: #d4af37; color: #0b1226; border-bottom: 3px solid #fff; }
+
+/* Hero: a comic page. White gutters, one splash panel, eight portrait panels. */
+.kp-hero-avengers { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); grid-template-rows: repeat(3, 9.5rem); gap: 6px; padding: 6px; background: #fff; }
+.kp-hero-avengers .kp-stage { display: contents; }
+.kp-hero-avengers .kp-hero-text { grid-column: 1 / span 2; grid-row: 1 / span 2; background: linear-gradient(120deg, #0b1226 0 62%, #c8102e 62%); padding: 1.4rem 1.6rem; color: #fff; display: flex; flex-direction: column; justify-content: center; }
+.kp-hero-avengers .kp-kicker { align-self: flex-start; background: #ffe066; color: #111; border: 2px solid #111; padding: .1rem .6rem; font-family: 'Comic Neue', cursive; letter-spacing: 0; text-transform: none; font-size: 1rem; }
+.kp-hero-avengers .kp-headline { font-family: 'Oswald', sans-serif; font-size: clamp(2.4rem, 4.6vw, 4.2rem); text-transform: uppercase; text-shadow: 3px 3px 0 #000; margin: .5rem 0; }
+.kp-hero-avengers .kp-stats { background: #ffe066; color: #111; border: 2px solid #111; padding: .2rem .6rem; font-family: 'Comic Neue', cursive; font-weight: 700; align-self: flex-start; }
+.kp-hero-avengers .kp-feature { background: #d4af37; color: #0b1226; border: 2px solid #111; border-radius: 0; margin-top: .6rem; align-self: flex-start; }
+.kp-hero-avengers .kp-art:nth-child(1) { grid-column: 3 / span 2; grid-row: 1; }
+.kp-hero-avengers .kp-art:nth-child(2) { grid-column: 5; grid-row: 1 / span 2; }
+.kp-hero-avengers .kp-art { border: 0; }
+.kp-hero-avengers .kp-art:nth-child(9) { display: none; }
+.kp-hero-avengers .kp-art::after { content: attr(data-name); position: absolute; left: 0; bottom: 0; background: #ffe066; color: #111; border: 2px solid #111; font: 700 .8rem 'Comic Neue', cursive; text-transform: uppercase; padding: 0 .4rem; }
+.kp-hero-avengers .kp-reactor { grid-column: 4; grid-row: 2; position: static; background: radial-gradient(#fff 0 10%, #9fe6ff 14% 26%, #0b1226 29% 36%, #9fe6ff 38% 42%, #0b1226 44% 58%, #d4af37 60% 64%, #0b1226 66%); box-shadow: inset 0 0 22px #9fe6ff66; }
+.kp-rail h2 { font-family: 'Oswald', sans-serif; text-transform: uppercase; color: #0b1226; background: #ffe066; border: 3px solid #fff; display: inline-block; padding: .1rem .8rem; }
+html[data-kp="avengers"] .kp-tile img { border: 4px solid #fff; }
+@media (max-width: 720px) { .kp-hero-avengers { grid-template-columns: repeat(2, 1fr); grid-template-rows: auto; } .kp-hero-avengers .kp-hero-text { grid-column: 1 / -1; grid-row: auto; } .kp-hero-avengers .kp-art { grid-column: auto !important; grid-row: auto !important; aspect-ratio: 3 / 4; } .kp-hero-avengers .kp-reactor { display: none; } }
