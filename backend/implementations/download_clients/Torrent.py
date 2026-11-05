@@ -3,6 +3,7 @@
 from asyncio import run
 from os.path import basename, join, splitext
 from threading import Event
+from urllib.parse import parse_qs, urlparse
 from typing import Any, Dict, Tuple, Union
 
 from magnet2torrent import FailedToFetchException, Magnet2Torrent
@@ -143,6 +144,14 @@ class TorrentDownload(ExternalDownload, BaseDirectDownload):
             raw_data = (await m2t.retrieve_torrent())[1]
         except FailedToFetchException:
             return None
+        except Exception:
+            # The library trips over a tracker that answers in an unusual way
+            # (for example an HTTP tracker without a "complete" field). That
+            # says nothing about the torrent, so use the name that the magnet
+            # link itself carries, if it has one.
+            LOGGER.exception("Reading the torrent from its magnet link failed")
+            name = parse_qs(urlparse(self._download_link).query).get("dn")
+            return name[0] if name and name[0] else None
 
         return get_torrent_info(raw_data)[b"name"].decode()
 
