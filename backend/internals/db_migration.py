@@ -1107,13 +1107,15 @@ def _migrate_add_monitor_new_issues_to_volumes():
 def _migrate_torrent_timeout_to_download_timeout():
     cursor = get_db()
 
-    old_value = cursor.execute(
+    # A database from an early version has no such setting yet: nothing to carry over
+    old = cursor.execute(
         "SELECT value FROM config WHERE key = 'failing_torrent_timeout' LIMIT 1;"
-    ).fetchone()[0]
+    ).fetchone()
 
-    cursor.execute(
-        "UPDATE config SET value = ? WHERE key = 'failing_download_timeout';",
-        (old_value,))
+    if old is not None:
+        cursor.execute(
+            "UPDATE config SET value = ? WHERE key = 'failing_download_timeout';",
+            (old[0],))
 
     cursor.execute(
         "DELETE FROM config WHERE key = 'failing_torrent_timeout';"

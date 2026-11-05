@@ -103,5 +103,22 @@ class AddColumnsIfMissingTests(unittest.TestCase):
                          ["id", "api_path", "api_key"])
 
 
+class TorrentTimeoutMigrationTests(unittest.TestCase):
+    def run_step(self, rows):
+        db = sqlite3.connect(":memory:")
+        db.execute("CREATE TABLE config(key TEXT PRIMARY KEY, value)")
+        db.executemany("INSERT INTO config VALUES (?, ?)", rows)
+        with patch.object(dm, 'get_db', return_value=db):
+            dm.DatabaseMigrationHandler.handlers[38]()
+        return dict(db.execute("SELECT key, value FROM config").fetchall())
+
+    def test_database_of_an_early_version_without_the_setting(self):
+        self.assertEqual(self.run_step([('port', 5656)]), {'port': 5656})
+
+    def test_the_value_is_carried_over(self):
+        result = self.run_step([('failing_torrent_timeout', 90), ('failing_download_timeout', 0)])
+        self.assertEqual(result, {'failing_download_timeout': 90})
+
+
 if __name__ == '__main__':
     unittest.main()
