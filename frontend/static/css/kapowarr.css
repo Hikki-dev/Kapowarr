@@ -111,7 +111,7 @@ a:hover { text-decoration: none; }
 /* Icons that are <img>: one colour per mode, set once as --icon-filter. */
 :root { --icon-filter: brightness(0) opacity(.68); }
 :root.dark-mode { --icon-filter: brightness(0) invert(.86); }
-:root :is(.tool-bar, .icon-text-color, .icon-dark-color, .icon-light-color, .window-header) img,
+:root :is(.tool-bar, .icon-text-color, .icon-dark-color, .icon-light-color, .window-header, .settings-container) img,
 :root th > img {
 	filter: var(--icon-filter);
 }
@@ -385,7 +385,8 @@ tbody tr:hover { background-color: var(--hover-color); }
 .settings-container .fold-table th { text-align: left; }
 .settings-container table th { font-weight: 500; font-size: 14px; padding-top: 16px; }
 .settings-container table tr:has(input[type="checkbox"]) th { padding-top: 12px; }
-.settings-container table :where(td, th) { padding-block: 12px; border-bottom: 1px solid var(--border-color); }
+.settings-container table :where(td, th) { padding-block: 12px; height: auto; border-bottom: 1px solid var(--border-color); }
+.settings-container table select { min-width: 9rem; }
 .settings-container table select,
 .settings-container table input:not([type="checkbox"]) {
 	width: min(36rem, 100%);
@@ -765,10 +766,13 @@ main > div:has(#about-table) section:first-of-type h2 { margin-top: 0; }
 	#nav-bar { width: min(80vw, 280px); box-shadow: 8px 0 24px rgba(0, 0, 0, .5); }
 	.tool-bar-container { padding: 0 8px; }
 	.tool-bar > * { padding: 0 8px; }
-	.tool-bar div > p { display: none; }
+	.tool-bar:has(> :nth-child(4)) div > p { display: none; }
 	#library-container, #table-container { padding: 16px; }
 	#list-library { --entry-width: clamp(9rem, 44%, 12rem); gap: 20px 14px; }
 	.settings-container { padding: 16px; }
+	.settings-container table :where(td, th) { border-bottom: 0; padding: 4px 8px; }
+	.settings-container .fold-table tr { padding: 10px 0; border-bottom: 1px solid var(--border-color); }
+	.settings-container table select, .settings-container table input:not([type="checkbox"]) { width: 100%; }
 	.volume-mobile-description-container { padding: 16px; }
 	.issues-table { margin: 16px; width: calc(100% - 32px); }
 	#search-input { width: 8rem; }
