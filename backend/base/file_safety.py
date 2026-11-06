@@ -213,7 +213,10 @@ def problem_with(paths: List[str]) -> Optional[str]:
                         elif splitext(name)[1].lower() in (
                             FileConstants.CONTAINER_EXTENSIONS
                         ):
-                            check_file(full)
+                            try:
+                                check_file(full)
+                            except UnsafeFile as e:
+                                return f'{full}: {e}'
             else:
                 check_file(path)
 
