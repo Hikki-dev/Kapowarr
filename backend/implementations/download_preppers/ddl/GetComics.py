@@ -16,7 +16,7 @@ from backend.base.custom_exceptions import (DownloadLinkBroken,
                                             EnqueuingDownloadFailure,
                                             IssueNotFound)
 from backend.base.definitions import (GC_DOWNLOAD_SERVICE_TERMS,
-                                      BlocklistReason, Download,
+                                      BlocklistReason, Constants, Download,
                                       DownloadClientIdentifier, DownloadGroup,
                                       DownloadPrepper, DownloadService,
                                       DownloadType,
@@ -354,6 +354,15 @@ async def _purify_link(
 
     if r.status == 429 and download_service == GCDownloadService.GETCOMICS:
         raise DownloadServiceRateLimitReached(DownloadService.GETCOMICS)
+
+    if (
+        r.status == 403
+        and r.headers.get(Constants.CF_CHALLENGE_HEADER[0], '')
+        == Constants.CF_CHALLENGE_HEADER[1]
+    ):
+        # Cloudflare blocks it and FlareSolverr could not pass. The link is
+        # fine, so don't blocklist it: skip it and try the next service.
+        raise ClientError
 
     if not r.ok:
         raise DownloadLinkBroken(link)

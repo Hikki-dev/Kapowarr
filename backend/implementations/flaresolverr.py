@@ -6,9 +6,11 @@ from asyncio import Semaphore
 from datetime import datetime, timezone
 from time import time
 from typing import TYPE_CHECKING, Any, Dict, Mapping, Tuple, Union
+from asyncio import TimeoutError as AsyncTimeoutError
 from urllib.parse import urlparse
 
-from requests import RequestException
+from aiohttp import ClientError, ClientSession, ClientTimeout
+from requests import RequestException, post
 
 from backend.base.definitions import Constants, ProxyType, StatusType
 from backend.base.helpers import Session
@@ -18,6 +20,32 @@ from backend.internals.status import StatusHandlers
 
 if TYPE_CHECKING:
     from backend.base.helpers import AsyncSession
+
+
+class FSBlocklist:
+    """Remembers sites that FlareSolverr could not get past, so the next
+    request to them gives up at once instead of waiting for FlareSolverr again.
+    A comic that has other download services can then move on to them.
+    """
+
+    PAUSE = 600  # seconds
+    until: Dict[str, float] = {}
+
+    @classmethod
+    def host(cls, url: str) -> str:
+        return urlparse(url).netloc
+
+    @classmethod
+    def is_paused(cls, url: str) -> bool:
+        return cls.until.get(cls.host(url), 0) > time()
+
+    @classmethod
+    def pause(cls, url: str) -> None:
+        cls.until[cls.host(url)] = time() + cls.PAUSE
+        LOGGER.warning(
+            f"FlareSolverr could not pass {cls.host(url)}; "
+            f"not trying again for {cls.PAUSE // 60} minutes"
+        )
 
 
 class FSCache:
@@ -120,7 +148,9 @@ class FlareSolverr:
         session: Session,
         data: Dict[str, Any]
     ) -> Dict[str, Any]:
-        return session.post(
+        # A plain request: FlareSolverr answers 500 when it cannot solve a
+        # challenge, and retrying that only makes the wait longer.
+        return post(
             base_url + Constants.FS_API_BASE,
             json=data,
             headers={'Content-Type': 'application/json'},
@@ -133,12 +163,15 @@ class FlareSolverr:
         session: AsyncSession,
         data: Dict[str, Any]
     ) -> Dict[str, Any]:
-        return await (await session.post(
-            base_url + Constants.FS_API_BASE,
-            json=data,
-            headers={'Content-Type': 'application/json'},
-            timeout=Constants.REQUEST_TIMEOUT + Constants.FS_RESOLVE_TIMEOUT
-        )).json()
+        async with ClientSession(timeout=ClientTimeout(
+            total=Constants.REQUEST_TIMEOUT + Constants.FS_RESOLVE_TIMEOUT
+        )) as plain:
+            async with plain.post(
+                base_url + Constants.FS_API_BASE,
+                json=data,
+                headers={'Content-Type': 'application/json'}
+            ) as response:
+                return await response.json(content_type=None)
 
     @staticmethod
     def test_flaresolverr(base_url: str) -> bool:
@@ -221,16 +254,24 @@ class FlareSolverr:
             StatusHandlers().report(StatusType.CF_CHALLENGE_WITH_NO_FS, '')
             return
 
-        with Session() as session:
-            result = self.__api_request(
-                self.base_url, session,
-                {
-                    'cmd': 'request.get',
-                    'url': url,
-                    'maxTimeout': Constants.FS_RESOLVE_TIMEOUT * 1000,
-                    **(self.proxy_data or {})
-                }
-            )["solution"]
+        if FSBlocklist.is_paused(url):
+            return
+
+        try:
+            with Session() as session:
+                result = self.__api_request(
+                    self.base_url, session,
+                    {
+                        'cmd': 'request.get',
+                        'url': url,
+                        'maxTimeout': Constants.FS_RESOLVE_TIMEOUT * 1000,
+                        **(self.proxy_data or {})
+                    }
+                )["solution"]
+
+        except (RequestException, KeyError, TypeError, ValueError):
+            FSBlocklist.pause(url)
+            return
 
         if result["response"] is None:
             # FlareSolverr responded, but content of
@@ -283,16 +324,24 @@ class FlareSolverr:
                 Constants.MAX_CONCURRENT_FS_SESSIONS
             )
 
-        async with self.session_semaphore:
-            result = (await self.__async_api_request(
-                self.base_url, session,
-                {
-                    'cmd': 'request.get',
-                    'url': url,
-                    'maxTimeout': Constants.FS_RESOLVE_TIMEOUT * 1000,
-                    **(self.proxy_data or {})
-                }
-            ))["solution"]
+        if FSBlocklist.is_paused(url):
+            return
+
+        try:
+            async with self.session_semaphore:
+                result = (await self.__async_api_request(
+                    self.base_url, session,
+                    {
+                        'cmd': 'request.get',
+                        'url': url,
+                        'maxTimeout': Constants.FS_RESOLVE_TIMEOUT * 1000,
+                        **(self.proxy_data or {})
+                    }
+                ))["solution"]
+
+        except (ClientError, AsyncTimeoutError, KeyError, TypeError, ValueError):
+            FSBlocklist.pause(url)
+            return
 
         if result["response"] is None:
             # FlareSolverr responded, but content of
