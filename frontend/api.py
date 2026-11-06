@@ -663,7 +663,10 @@ def api_rootfolder():
         folder = data.get('folder')
         if folder is None:
             raise KeyNotFound('folder')
-        root_folder = root_folders.add(folder).todict()
+        root_folder = root_folders.add(
+            folder,
+            create=bool(data.get('create', False))
+        ).todict()
         return return_api(root_folder, code=201)
 
 

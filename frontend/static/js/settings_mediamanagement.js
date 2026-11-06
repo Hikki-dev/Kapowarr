@@ -361,7 +361,7 @@ function addRootFolder(api_key) {
 	const folder = folder_input.value;
 	folder_input.value = '';
 
-	sendAPI('POST', '/rootfolder', api_key, {}, {folder: folder})
+	sendAPI('POST', '/rootfolder', api_key, {}, {folder: folder, create: true})
 	.then(response => {
 		fillRootFolder(api_key);
 		toggleAddRootFolder(1);

@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from functools import lru_cache
-from os.path import abspath, isdir, samefile
+from os import mkdir
+from os.path import abspath, basename, dirname, isdir, samefile
 from shutil import disk_usage
 from sqlite3 import IntegrityError
 from typing import Dict, List, Union, cast
@@ -17,6 +18,28 @@ from backend.base.logging import LOGGER
 from backend.internals.db import get_db
 from backend.internals.settings import Settings
 from backend.internals.status import StatusHandlers
+
+
+def make_missing_folder(folder: str) -> None:
+    """Create a root folder that does not exist yet. Only the last folder of the
+    path is created, and only when the folder above it exists, so a typo cannot
+    build a whole new tree.
+
+    Raises:
+        FolderNotFound: The folder above does not exist, or the name is not usable.
+    """
+    folder = abspath(folder)
+    name = basename(folder)
+    if (
+        not name
+        or name.startswith('.')
+        or name.endswith('.')
+        or '\x00' in folder
+        or not isdir(dirname(folder))
+    ):
+        raise FolderNotFound(folder)
+
+    mkdir(folder)
 
 
 class RootFolders(metaclass=Singleton):
@@ -146,12 +169,16 @@ class RootFolders(metaclass=Singleton):
     def add(
         self,
         folder: str,
-        _folder_to_skip_check: Union[str, None] = None
+        _folder_to_skip_check: Union[str, None] = None,
+        create: bool = False
     ) -> RootFolder:
         """Add a rootfolder.
 
         Args:
             folder (str): The folder to add.
+
+            create (bool, optional): Create the folder if it doesn't exist yet
+                (the folder above it must exist). Defaults to False.
 
             _folder_to_skip_check (Union[str, None], optional): Don't check
                 whether the added rootfolder is a parent or child of this folder.
@@ -168,7 +195,9 @@ class RootFolders(metaclass=Singleton):
         LOGGER.info(f'Adding rootfolder from {folder}')
 
         if not isdir(folder):
-            raise FolderNotFound(folder)
+            if not create:
+                raise FolderNotFound(folder)
+            make_missing_folder(folder)
 
         folder = uppercase_drive_letter(
             force_suffix(abspath(folder))

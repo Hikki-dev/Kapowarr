@@ -13,6 +13,8 @@ New here? Start with the [README](../README.md): one command starts it. Then ope
 ## Configure
 
 - [Zipped downloads](Zipped%20downloads.md): zip and rar files with whole issues are taken out safely
+- [Safe downloads](Safe%20downloads.md): programs, scripts and fake comics never reach the library
+- [Folders](Folders.md): separate libraries for comics, manga and more, and moving between them without copies
 
 - [Prowlarr and torrents](Prowlarr%20and%20torrents.md): torrent search, qBittorrent, and the Internet Archive
 - [Extras](Extras.md): release calendar, requests, quality upgrades, reading progress

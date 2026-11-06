@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Dict
 
 from backend.base.definitions import (BlocklistReason,
                                       DownloadState, FileConstants)
+from backend.base.file_safety import problem_with
 from backend.base.files import (copy_directory, delete_file_folder,
                                 rename_file, set_detected_extension)
 from backend.base.logging import LOGGER
@@ -95,6 +96,19 @@ class PostProcessingContext:
             BlocklistReason.LINK_BROKEN
         )
         return
+
+    def is_safe(self) -> bool:
+        """Check that the download is a comic and not a program, before
+        anything is moved into the library.
+        """
+        reason = problem_with(self.download.files)
+        if reason is None:
+            return True
+
+        LOGGER.warning(
+            f'Refusing download {self.download.id} ({self.download.title}): {reason}'
+        )
+        return False
 
     # region Ctx Moving
     def move_to_dest(self) -> None:
@@ -281,6 +295,9 @@ class PostProcessor:
         LOGGER.info(
             f'Postprocessing of successful download: {self.download.id}'
         )
+        if not self.ctx.is_safe():
+            return self.perm_failed()
+
         self.ctx.remove_from_queue()
         self.ctx.add_to_history()
         commit()
@@ -335,6 +352,9 @@ class PostProcessorTorrentsComplete(PostProcessor):
         LOGGER.info(
             f'Postprocessing of successful download: {self.download.id}'
         )
+        if not self.ctx.is_safe():
+            return self.perm_failed()
+
         self.ctx.remove_from_queue()
         self.ctx.add_to_history()
         commit()
@@ -358,6 +378,9 @@ class PostProcessorTorrentsCopy(PostProcessor):
 
     def seeding(self) -> None:
         LOGGER.info(f'Postprocessing of seeding download: {self.download.id}')
+        if not self.ctx.is_safe():
+            return self.perm_failed()
+
         self.ctx.add_to_history()
         commit()
         self.ctx.copy_file_torrent()
