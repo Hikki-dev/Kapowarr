@@ -7,7 +7,7 @@
 
 Build a comic library and keep it up to date, from every place comics can be found.
 
-<p align="center"><img src="docs/images/ui-library.jpg" alt="The Kapowarr shelf: comic covers with a progress bar under each, and how many issues are missing" width="100%"></p>
+<p align="center"><img src="docs/images/ui-library-light.jpg" alt="The Kapowarr shelf: comic covers with a progress bar under each, and how many issues are missing" width="100%"></p>
 
 <p align="center"><sub>Your shelf. Every comic shows how complete it is.</sub></p>
 
@@ -72,11 +72,11 @@ For torrents you also need a download client: Settings, Download Clients, add **
 
 ## A clearer interface
 
-The same Kapowarr, laid out like Sonarr and Radarr and made easier to read: one typeface, one icon set, plain words, and the same spacing everywhere. Everything is still where it was, and dark is the default. The full tour, with the reasons, is in [The interface](docs/Interface.md).
+The same Kapowarr, laid out like Sonarr and Radarr and made easier to read: one typeface, one icon set, plain words, and the same spacing everywhere. Everything is still where it was, and light is the default. The full tour, with the reasons, is in [The interface](docs/Interface.md).
 
 <p align="center"><img src="docs/images/ui-calendar-month.png" alt="The month calendar" width="49%"> <img src="docs/images/ui-series.png" alt="A series page: Have, Missing and In the run, then the issue list" width="49%"></p>
 
-<p align="center"><img src="docs/images/ui-library-light.jpg" alt="The same shelf in the light theme" width="49%"> <img src="docs/images/ui-mobile.jpg" alt="The shelf on a phone with a tab bar" width="24%"></p>
+<p align="center"><img src="docs/images/ui-library.jpg" alt="The same shelf in the dark theme" width="49%"> <img src="docs/images/ui-mobile.jpg" alt="The shelf on a phone with a tab bar" width="24%"></p>
 
 ## Extras: calendar, requests, upgrades, reading
 

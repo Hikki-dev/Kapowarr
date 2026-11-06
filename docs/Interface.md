@@ -5,7 +5,7 @@ tidied so a beginner can find things and a daily user can work quickly. It
 changes only how things look and are worded. Every feature, page and
 address of Kapowarr is still there.
 
-<p align="center"><img src="images/ui-library.jpg" alt="The Series page: a shelf of comic covers, each with its progress and how many issues are missing" width="100%"></p>
+<p align="center"><img src="images/ui-library-light.jpg" alt="The Series page: a shelf of comic covers, each with its progress and how many issues are missing" width="100%"></p>
 
 ## Finding your way
 
@@ -59,9 +59,9 @@ The dates come from your library, so the calendar works without internet. A date
 
 ## Light and dark
 
-Dark is the default, as in Sonarr. Change it under Settings, General, Theme.
+Light is the default. Change it to dark under Settings, General, Theme.
 
-<p align="center"><img src="images/ui-library-light.jpg" alt="The same shelf in the light theme" width="100%"></p>
+<p align="center"><img src="images/ui-library.jpg" alt="The same shelf in the dark theme" width="100%"></p>
 
 ## On a phone
 
