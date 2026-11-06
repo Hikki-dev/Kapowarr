@@ -206,14 +206,18 @@ def embed_comicinfo(cbz: str, xml: bytes) -> bool:
             existing = _has_comicinfo(names)
             if existing is not None:
                 current = src.read(existing)
-                # Keep what the file already knew (ours or another tool's),
-                # and put the ComicVine details on top
-                xml = merge_comicinfo(current, xml)
-                if xml is None:
-                    return False  # Not readable: leave it alone
+            else:
+                current = b'<ComicInfo/>'
 
-                if current == xml:
-                    return False  # Already up to date
+            # Keep what the file already knew (ours or another tool's), and
+            # put the ComicVine details on top. Always written the same way,
+            # so a second run finds nothing to change.
+            xml = merge_comicinfo(current, xml)
+            if xml is None:
+                return False  # Not readable: leave it alone
+
+            if existing is not None and current == xml:
+                return False  # Already up to date
 
             if disk_usage(dirname(cbz)).free < getsize(cbz) + SPARE_BYTES:
                 LOGGER.warning(

@@ -32,6 +32,11 @@ def issue(**kw):
     return IssueData(**base)
 
 
+def read_bytes(path):
+    with open(path, 'rb') as f:
+        return f.read()
+
+
 def make_cbz(path, members=None):
     with ZipFile(path, 'w') as zf:
         for name, data in (members or {'001.jpg': b'a' * 100, '002.jpg': b'b' * 100}).items():
@@ -92,7 +97,9 @@ class EmbedTests(unittest.TestCase):
         with ZipFile(cbz) as zf:
             self.assertEqual(sorted(zf.namelist()), ['001.jpg', '002.jpg', 'ComicInfo.xml'])
             self.assertEqual(zf.read('001.jpg'), b'a' * 100)
-            self.assertEqual(zf.read('ComicInfo.xml'), self.xml)
+            info = fromstring(zf.read('ComicInfo.xml'))
+            self.assertEqual(info.findtext('Series'), 'Absolute Wonder Woman')
+            self.assertEqual(info.findtext('Number'), '12')
             self.assertIsNone(zf.testzip())
         self.assertEqual(int(os.stat(cbz).st_mtime), 1_600_000_000)
         self.assertEqual([f for f in os.listdir(self.dir)], ['a.cbz'])  # no temp file left
@@ -145,17 +152,17 @@ class EmbedTests(unittest.TestCase):
 
     def test_no_space_means_no_change(self):
         cbz = make_cbz(os.path.join(self.dir, 'a.cbz'))
-        before = open(cbz, 'rb').read()
+        before = read_bytes(cbz)
         with mock.patch.object(lm, 'disk_usage', return_value=mock.Mock(free=10)):
             self.assertFalse(lm.embed_comicinfo(cbz, self.xml))
-        self.assertEqual(open(cbz, 'rb').read(), before)
+        self.assertEqual(read_bytes(cbz), before)
 
     def test_failure_while_copying_leaves_the_original(self):
         cbz = make_cbz(os.path.join(self.dir, 'a.cbz'))
-        before = open(cbz, 'rb').read()
+        before = read_bytes(cbz)
         with mock.patch.object(lm, 'replace', side_effect=OSError('disk')):
             self.assertFalse(lm.embed_comicinfo(cbz, self.xml))
-        self.assertEqual(open(cbz, 'rb').read(), before)
+        self.assertEqual(read_bytes(cbz), before)
         self.assertEqual(os.listdir(self.dir), ['a.cbz'])
 
 
