@@ -83,7 +83,10 @@ class PostProcessingContext:
         return
 
     # region Ctx Blocklist
-    def add_dl_to_blocklist(self) -> None:
+    def add_dl_to_blocklist(
+        self,
+        reason: BlocklistReason = BlocklistReason.LINK_BROKEN
+    ) -> None:
         "Add the download to the blocklist in the database"
         add_to_blocklist(
             self.download.web_link,
@@ -93,7 +96,7 @@ class PostProcessingContext:
             self.download.download_service,
             self.download.volume_id,
             self.download.issue_id,
-            BlocklistReason.LINK_BROKEN
+            reason
         )
         return
 
@@ -108,7 +111,26 @@ class PostProcessingContext:
         LOGGER.warning(
             f'Refusing download {self.download.id} ({self.download.title}): {reason}'
         )
+        self.refused_reason = reason
         return False
+
+    def search_replacement(self) -> None:
+        "After a refused download, look for another release of the same issue"
+        if not Settings().sv.search_after_unsafe:
+            return
+
+        try:
+            from backend.features.tasks import (AutoSearchIssue,
+                                                AutoSearchVolume, TaskHandler)
+            task = (
+                AutoSearchIssue(self.download.volume_id, self.download.issue_id)
+                if self.download.issue_id
+                else AutoSearchVolume(self.download.volume_id)
+            )
+            TaskHandler().add(task)
+            LOGGER.info('Searching for a replacement of the refused download')
+        except Exception:
+            LOGGER.exception('Could not start the replacement search')
 
     # region Ctx Moving
     def move_to_dest(self) -> None:
@@ -291,12 +313,29 @@ class PostProcessor:
         self.ctx = PostProcessingContext(download)
         return
 
+    def refuse(self) -> None:
+        """The download is a program or not a comic: remove it from the queue,
+        keep a record in History, blocklist that link (so it is never fetched
+        again), delete the files, tell the user and, by default, search for a
+        replacement.
+        """
+        reason = getattr(self.ctx, 'refused_reason', 'not a comic')
+        self.download.state = DownloadState.FAILED_STATE
+        self.ctx.remove_from_queue()
+        self.ctx.add_to_history()
+        self.ctx.add_dl_to_blocklist(BlocklistReason.UNSAFE_FILE)
+        commit()
+        self.ctx.delete_file()
+        notifications.refused(self.download.title, reason)
+        self.ctx.search_replacement()
+        return
+
     def success(self) -> None:
         LOGGER.info(
             f'Postprocessing of successful download: {self.download.id}'
         )
         if not self.ctx.is_safe():
-            return self.perm_failed()
+            return self.refuse()
 
         self.ctx.remove_from_queue()
         self.ctx.add_to_history()
@@ -353,7 +392,7 @@ class PostProcessorTorrentsComplete(PostProcessor):
             f'Postprocessing of successful download: {self.download.id}'
         )
         if not self.ctx.is_safe():
-            return self.perm_failed()
+            return self.refuse()
 
         self.ctx.remove_from_queue()
         self.ctx.add_to_history()
@@ -379,7 +418,7 @@ class PostProcessorTorrentsCopy(PostProcessor):
     def seeding(self) -> None:
         LOGGER.info(f'Postprocessing of seeding download: {self.download.id}')
         if not self.ctx.is_safe():
-            return self.perm_failed()
+            return self.refuse()
 
         self.ctx.add_to_history()
         commit()

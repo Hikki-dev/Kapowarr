@@ -19,7 +19,7 @@ from html import unescape
 from copy import copy
 from json import dumps
 from os import remove, replace, stat, utime
-from os.path import basename, dirname, exists, getsize, isdir, join, relpath, splitext
+from os.path import basename, dirname, exists, getsize, isdir, join, splitext
 from re import sub
 from shutil import disk_usage
 from typing import Dict, List, Optional, Union
@@ -301,17 +301,6 @@ def write_series_files(
     return
 
 
-def series_folder_of(root_folder: str, volume_folder: str) -> str:
-    """The folder Komga treats as the series: the first folder below the
-    root folder.
-    """
-    first = relpath(volume_folder, root_folder).replace('\\', '/').split('/')[0]
-    if first in ('', '.', '..'):
-        return volume_folder
-
-    return join(root_folder, first)
-
-
 def mass_write_metadata(
     volume_id: int,
     filepath_filter: Union[List[str], None] = None
@@ -325,7 +314,6 @@ def mass_write_metadata(
     Returns:
         int: How many files were changed.
     """
-    from backend.implementations.root_folders import RootFolders
     from backend.implementations.volumes import Volume
     from backend.internals.settings import Settings
 
@@ -361,10 +349,8 @@ def mass_write_metadata(
         cover = None
 
     try:
-        write_series_files(
-            series_folder_of(RootFolders()[vd.root_folder], vd.folder),
-            vd, cover, total
-        )
+        # Komga treats the folder that holds the issues as the series
+        write_series_files(vd.folder, vd, cover, total)
     except OSError as e:
         LOGGER.warning(f'Could not write the series files for {vd.title}: {e}')
 

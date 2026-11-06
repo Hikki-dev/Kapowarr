@@ -202,7 +202,3 @@ class SeriesFilesTests(unittest.TestCase):
 
     def test_missing_folder_is_ignored(self):
         lm.write_series_files(os.path.join(self.dir, 'nope'), volume(), self.JPEG, 1)
-
-    def test_series_folder_is_the_first_folder_below_the_root(self):
-        self.assertEqual(lm.series_folder_of('/r/Comics/', '/r/Comics/Batman/Volume 01 (2020)'), '/r/Comics/Batman')
-        self.assertEqual(lm.series_folder_of('/r/Comics/', '/r/Comics/Batman'), '/r/Comics/Batman')

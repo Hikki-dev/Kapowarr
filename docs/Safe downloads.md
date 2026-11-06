@@ -16,7 +16,7 @@ Kapowarr only files comics. Before a finished download is moved into your librar
 
 Nothing is opened or run: only the first bytes and the list of names inside archives are read. The check is strict on purpose; a real comic does not trip it. The PDF check looks for the words in plain text, so it catches the usual cases and is not a virus scanner. For a full scan, run ClamAV on your downloads folder as well.
 
-A refused download shows as failed in History, its link goes on the Blocklist (so it is not tried again) and its files are deleted from the download folder.
+A refused download shows as failed in History, its link goes on the Blocklist with the reason **Unsafe file** (remove it there to allow that link again), its files are deleted from the download folder and you get a notification. With **Search again after a refused download** (Media Management, on by default) Kapowarr then looks for another release of the same issue, the way Sonarr and Radarr do after "blocklist and search".
 
 ## What is not changed
 

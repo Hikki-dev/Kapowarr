@@ -16,7 +16,8 @@ const BlockEls = {
 const reasonMap = {
 	link_broken: "Link broken",
 	no_working_links: "No supported or working links",
-	added_by_user: "Added by user"
+	added_by_user: "Added by user",
+	unsafe_file: "Unsafe file (a program or a fake comic)"
 }
 
 var offset = 0;

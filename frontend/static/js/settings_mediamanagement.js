@@ -17,7 +17,8 @@ const inputs = {
 	'chown_group': document.querySelector('#chown-group-input'),
 	'convert_input': document.querySelector('#convert-input'),
 	'extract_input': document.querySelector('#extract-input'),
-	'metadata_input': document.querySelector('#metadata-input')
+	'metadata_input': document.querySelector('#metadata-input'),
+	'unsafe_input': document.querySelector('#unsafe-input')
 };
 
 //
@@ -45,6 +46,7 @@ function fillSettings(api_key) {
 		inputs.convert_input.checked = json.result.convert;
 		inputs.extract_input.checked = json.result.extract_issue_ranges;
 		inputs.metadata_input.checked = json.result.write_metadata;
+		inputs.unsafe_input.checked = json.result.search_after_unsafe;
 
 		fillConvert(api_key, json.result.format_preference);
 	});
@@ -79,6 +81,7 @@ function saveSettings(api_key) {
 		'convert': inputs.convert_input.checked,
 		'extract_issue_ranges': inputs.extract_input.checked,
 		'write_metadata': inputs.metadata_input.checked,
+		'search_after_unsafe': inputs.unsafe_input.checked,
 		'format_preference': convert_preference,
 	};
 	sendAPI('PUT', '/settings', api_key, {}, data)

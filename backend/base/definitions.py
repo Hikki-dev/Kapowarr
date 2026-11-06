@@ -460,6 +460,7 @@ class BlocklistReasonID(BaseEnum):
     LINK_BROKEN = 1
     NO_WORKING_LINKS = 3
     ADDED_BY_USER = 4
+    UNSAFE_FILE = 5
 
 
 class BlocklistReason(BaseEnum):
@@ -468,6 +469,7 @@ class BlocklistReason(BaseEnum):
     LINK_BROKEN = "link_broken"
     NO_WORKING_LINKS = "no_working_links"
     ADDED_BY_USER = "added_by_user"
+    UNSAFE_FILE = "unsafe_file"
 
 
 class BrokenMetadataSourceReason(BaseEnum):

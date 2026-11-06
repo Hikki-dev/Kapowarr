@@ -148,3 +148,9 @@ def failed(title: str) -> None:
     "A download failed: tell the user."
     notify("Download failed", title, "failed")
     return
+
+
+def refused(title: str, reason: str) -> None:
+    "A download was refused because it is not a comic: tell the user."
+    notify("Download refused", f"{title}: {reason}", "failed")
+    return
