@@ -156,10 +156,11 @@ def embed_comicinfo(cbz: str, xml: bytes) -> bool:
             names = src.namelist()
             existing = _has_comicinfo(names)
             if existing is not None:
-                if MARKER.encode() not in src.read(existing)[:2000]:
+                current = src.read(existing)
+                if MARKER.encode() not in current:
                     return False  # Someone else's metadata: respect it
 
-                if src.read(existing) == xml:
+                if current == xml:
                     return False  # Already up to date
 
             if disk_usage(dirname(cbz)).free < getsize(cbz) + SPARE_BYTES:
