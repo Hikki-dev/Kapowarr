@@ -14,6 +14,7 @@ New here? Start with the [README](../README.md): one command starts it. Then ope
 
 - [Zipped downloads](Zipped%20downloads.md): zip and rar files with whole issues are taken out safely
 - [Safe downloads](Safe%20downloads.md): programs, scripts and fake comics never reach the library
+- [Metadata for Komga](Metadata%20for%20Komga.md): ComicInfo, cover and series.json so Komga shows the right names, numbers and covers
 - [Folders](Folders.md): separate libraries for comics, manga and more, and moving between them without copies
 
 - [Prowlarr and torrents](Prowlarr%20and%20torrents.md): torrent search, qBittorrent, and the Internet Archive
