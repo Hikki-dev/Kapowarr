@@ -25,6 +25,8 @@ What is changed:
 
 17. `backend/implementations/extras/releases.py` (`view_bounds`, `shift_anchor`, `grid_bounds`, `release_state`, `month_summary`, `upcoming`, `calendar`), `frontend/extras.py` (`/api/extras/calendar`, `/calendar/upcoming`, `/calendar/new`), `frontend/static/js/calendar.js` and `extras.html`: the calendar has Day, Week, Month and Year views and a Coming up list; checks in `tests/Tbackend/implementations/extras.py` cover leap years, month ends, year boundaries, bad dates and empty libraries.
 
+18. `backend/base/safe_archive.py` (new), `backend/implementations/converters.py`, `conversion.py`, `backend/features/post_processing.py`, `backend/internals/settings.py` and the Media Management settings text: a `.zip` or `.rar` that holds CBZ, CBR or PDF issues is checked (names, links, passwords, size, zip bombs, free space), extracted into a separate folder, filed without overwriting anything, and deleted only when its issues are in the library. "Extract archives containing issues" now works without "Convert/Extract Downloaded Files" and never changes a format, and it is on by default. See docs/Zipped downloads.md.
+
 Checks that run offline on every change, next to the original's own:
 `tests/Tbackend/implementations/extras.py`, `improvements.py`, `prowlarr_indexer.py`, `internet_archive_indexer.py`, `torrent_links.py`, `tests/Tbackend/implementations/download_clients/torrent_name.py` and `tests/Tbackend/internals/db_migration_fork.py`.
 

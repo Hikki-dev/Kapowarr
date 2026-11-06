@@ -438,6 +438,7 @@ def _extract_archive_to_library(
     commit()
 
     delete_file_folder(file)
+    delete_file_folder(archive_folder)
     delete_empty_parent_folders(dirname(file), volume_folder)
     LOGGER.info(f"Extracted {len(resulting_files)} issues from {file}")
 
