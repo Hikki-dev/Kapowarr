@@ -243,7 +243,7 @@ nav a.current-nav .ico { color: var(--accent-color); }
 	font-weight: 500;
 }
 .tool-bar > button:hover { background-color: var(--hover-color); }
-.tool-bar > select { width: auto; height: 36px; }
+.tool-bar > select { width: auto; flex: 0 0 auto; min-width: 9rem; height: 36px; margin-left: 4px; }
 .tool-bar img { height: 20px; width: 20px; }
 .tool-bar div { flex: 0 1 auto; }
 .tool-bar div > p { font-size: 14px; white-space: nowrap; }
