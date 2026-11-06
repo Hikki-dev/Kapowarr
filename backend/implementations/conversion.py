@@ -21,7 +21,8 @@ from backend.internals.server import TaskStatusEvent, WebSocket
 def _get_convertable_files(
     volume_id: int,
     issue_id: Union[int, None] = None,
-    filepath_filter: List[str] = []
+    filepath_filter: List[str] = [],
+    extract_only: bool = False
 ) -> Iterator[ProposedConversion]:
     """Get the files of a volume or issue that can be converted to a format that
     is more desired according to the format preference and extraction settings.
@@ -33,6 +34,9 @@ def _get_convertable_files(
         filepath_filter (List[str], optional): Only convert files mentioned in
             this list.
             Defaults to [].
+        extract_only (bool, optional): Only look for archives to take issues
+            out of; never change the format of a file.
+            Defaults to False.
 
     Yields:
         Iterator[ProposedConversion]: The proposed conversions of files to
@@ -47,7 +51,9 @@ def _get_convertable_files(
         (f["filepath"] for f in file_list),
         set(filepath_filter)
     )):
-        conversion_proposal = ConvertersManager.select_converter(file)
+        conversion_proposal = ConvertersManager.select_converter(
+            file, extract_only
+        )
         if conversion_proposal is None:
             continue
 
@@ -88,7 +94,8 @@ def mass_convert(
     filepath_filter: List[str] = [],
     update_websocket_progress: bool = False,
     update_websocket_files: bool = False,
-    process_individual_files: bool = True
+    process_individual_files: bool = True,
+    extract_only: bool = False
 ) -> List[str]:
     """Convert files for a volume or issue.
 
@@ -114,18 +121,24 @@ def mass_convert(
             permissions and date for all folders and/or files after converting.
             Defaults to True.
 
+        extract_only (bool, optional): Only take issues out of archives that
+            hold whole issues; never change the format of a file.
+            Defaults to False.
+
     Returns:
         List[str]: The new filenames, only of files that have been be converted.
     """
     planned_conversions: List[ProposedConversion] = []
     for proposed_convertion in _get_convertable_files(
-        volume_id, issue_id, filepath_filter
+        volume_id, issue_id, filepath_filter, extract_only
     ):
         if proposed_convertion.target_format == 'folder':
             resulting_files = proposed_convertion.perform_conversion()
             FilesDB.delete_filepath(proposed_convertion.filepath)
             for filepath in resulting_files:
-                sub_conversion = ConvertersManager.select_converter(filepath)
+                sub_conversion = ConvertersManager.select_converter(
+                    filepath, extract_only
+                )
                 if sub_conversion is not None:
                     planned_conversions.append(sub_conversion)
 

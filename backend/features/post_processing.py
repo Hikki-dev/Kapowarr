@@ -231,8 +231,11 @@ class PostProcessingContext:
         return
 
     def convert_file(self) -> None:
-        "Convert a file into a different format based on settings"
-        if not Settings().sv.convert:
+        """Convert a file into a different format based on settings. With only
+        "extract archives containing issues" on, an archive with whole issues
+        is unpacked, but no file changes format."""
+        settings = Settings().sv
+        if not (settings.convert or settings.extract_issue_ranges):
             return
 
         self.download.files += mass_convert(
@@ -240,7 +243,8 @@ class PostProcessingContext:
             self.download.issue_id,
             filepath_filter=self.download.files,
             update_websocket_files=True,
-            process_individual_files=False
+            process_individual_files=False,
+            extract_only=not settings.convert
         )
         return
 

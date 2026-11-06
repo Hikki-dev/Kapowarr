@@ -9,9 +9,10 @@ from __future__ import annotations
 from functools import lru_cache
 from itertools import chain
 from os import utime
-from os.path import basename, dirname, getmtime, isdir, isfile, join, splitext
+from os.path import (basename, dirname, exists, getmtime, getsize, isdir, isfile,
+                     join, splitext)
 from typing import Dict, List, Set, Tuple, Union
-from zipfile import ZipFile
+from zipfile import BadZipFile, ZipFile
 
 from backend.base.definitions import Constants, FileConstants, FileConverter
 from backend.base.file_extraction import extract_filename_data
@@ -22,6 +23,7 @@ from backend.base.files import (archive_contains_issues, create_folder,
                                 list_files, rename_file,
                                 set_detected_extension)
 from backend.base.helpers import run_rar
+from backend.base.safe_archive import UnsafeArchive, extract_rar, extract_zip
 from backend.base.logging import LOGGER
 from backend.implementations.file_matching import scan_files
 from backend.implementations.matching import folder_extraction_filter
@@ -33,9 +35,20 @@ from backend.internals.settings import Settings, System
 
 
 # region Helpers
+def _free_name(dest: str) -> str:
+    "`dest`, or `dest (2)`, `dest (3)`... when that name is already taken."
+    base, ext = splitext(dest)
+    number = 2
+    while exists(dest):
+        dest = f'{base} ({number}){ext}'
+        number += 1
+    return dest
+
+
 def extract_files_from_folder(
     source_folder: str,
-    volume_id: int
+    volume_id: int,
+    overwrite: bool = True
 ) -> List[str]:
     """Move files out of the source folder in to the volume folder, but only if
     they match to the volume. Otherwise they are deleted. The source folder
@@ -44,6 +57,11 @@ def extract_files_from_folder(
     Args:
         source_folder (str): The folder to extract files out of.
         volume_id (int): The ID of the volume for which the files should be.
+        overwrite (bool, optional): Replace a file that is already in the
+            library under the same name. When `False`, an identical file is
+            kept as it is and a different one gets a number after its name,
+            so nothing in the library is ever lost.
+            Defaults to True.
 
     Returns:
         List[str]: The filepaths of the files that were extracted.
@@ -97,6 +115,13 @@ def extract_files_from_folder(
             )
 
         dest = splitext(dest)[0] + splitext(set_detected_extension(file))[1]
+
+        if not overwrite and exists(dest):
+            if getsize(dest) == getsize(file):
+                LOGGER.info(f'{dest} is already in the library; keeping it')
+                result.append(dest)
+                continue
+            dest = _free_name(dest)
 
         rename_file(file, dest)
         result.append(dest)
@@ -240,12 +265,19 @@ class ConvertersManager:
         return set(chain.from_iterable(cls.converters.values()))
 
     @classmethod
-    def select_converter(cls, filepath: str) -> Union[ProposedConversion, None]:
+    def select_converter(
+        cls,
+        filepath: str,
+        extract_only: bool = False
+    ) -> Union[ProposedConversion, None]:
         """Get a proposed conversion for the file, based on the current format
         and the format preference.
 
         Args:
             filepath (str): The filepath to convert for.
+            extract_only (bool, optional): Only propose taking the issues out
+                of an archive; never change the format of a file.
+                Defaults to False.
 
         Returns:
             Union[ProposedConversion, None]: The selected conversion that should
@@ -269,6 +301,9 @@ class ConvertersManager:
             return ProposedConversion(
                 filepath, cls.converters[source_format]['folder'][0], 'folder'
             )
+
+        if extract_only:
+            return None
 
         for potential_format in settings.format_preference:
             if source_format == potential_format:
@@ -349,6 +384,66 @@ def zip_to_cbr(file: str) -> List[str]:
     return cbr_file
 
 
+def _extract_archive_to_library(
+    file: str,
+    volume_id: int,
+    extractor
+) -> List[str]:
+    """Take the issues out of an archive and put them in the library, with
+    these precautions: the archive is checked first, it is extracted into a
+    separate folder, nothing in the library is overwritten, and the original
+    archive is deleted only when at least one issue made it into the library.
+    If anything goes wrong, the archive is left as it is.
+
+    Args:
+        file (str): The archive.
+        volume_id (int): The volume it belongs to.
+        extractor: `extract_zip` or `extract_rar`.
+
+    Returns:
+        List[str]: The issue files now in the library, or `[file]` when the
+            archive was left alone.
+    """
+    volume_folder = Volume(volume_id).vd.folder
+    archive_folder = generate_archive_folder(volume_folder, file)
+
+    try:
+        extractor(file, archive_folder)
+
+    except (UnsafeArchive, BadZipFile, OSError, RuntimeError) as e:
+        LOGGER.error(f"Not extracting {file}: {e}. The file is kept as it is.")
+        delete_file_folder(archive_folder)
+        return [file]
+
+    resulting_files = extract_files_from_folder(
+        archive_folder,
+        volume_id,
+        overwrite=False
+    )
+
+    if not resulting_files or not all(
+        isfile(f) and getsize(f) > 0 for f in resulting_files
+    ):
+        LOGGER.error(
+            f"No issues from {file} reached the library. The file is kept."
+        )
+        delete_file_folder(archive_folder)
+        return [file]
+
+    scan_files(volume_id, filepath_filter=resulting_files)
+    resulting_files = mass_rename(
+        volume_id,
+        filepath_filter=resulting_files
+    )
+    commit()
+
+    delete_file_folder(file)
+    delete_empty_parent_folders(dirname(file), volume_folder)
+    LOGGER.info(f"Extracted {len(resulting_files)} issues from {file}")
+
+    return resulting_files
+
+
 @ConvertersManager.register_converter("zip", "folder")
 def zip_to_folder(file: str) -> List[str]:
     volume_id = FilesDB.volume_of_file(file)
@@ -356,29 +451,7 @@ def zip_to_folder(file: str) -> List[str]:
         # File not matched to volume
         return [file]
 
-    volume_folder = Volume(volume_id).vd.folder
-    archive_folder = generate_archive_folder(volume_folder, file)
-
-    with ZipFile(file, 'r') as zip:
-        zip.extractall(archive_folder)
-
-    resulting_files = extract_files_from_folder(
-        archive_folder,
-        volume_id
-    )
-
-    if resulting_files:
-        scan_files(volume_id, filepath_filter=resulting_files)
-        resulting_files = mass_rename(
-            volume_id,
-            filepath_filter=resulting_files
-        )
-        commit()
-
-    delete_file_folder(file)
-    delete_empty_parent_folders(dirname(file), volume_folder)
-
-    return resulting_files
+    return _extract_archive_to_library(file, volume_id, extract_zip)
 
 
 # region CBZ
@@ -483,34 +556,7 @@ def rar_to_folder(file: str) -> List[str]:
         # File not matched to volume
         return [file]
 
-    volume_folder = Volume(volume_id).vd.folder
-    archive_folder = generate_archive_folder(volume_folder, file)
-    create_folder(archive_folder)
-
-    run_rar([
-        'x', # Extract files with full path
-        '-inul', # Disable all messages
-        file, # Source archive file
-        archive_folder # Target folder to extract into
-    ])
-
-    resulting_files = extract_files_from_folder(
-        archive_folder,
-        volume_id
-    )
-
-    if resulting_files:
-        scan_files(volume_id, filepath_filter=resulting_files)
-        resulting_files = mass_rename(
-            volume_id,
-            filepath_filter=resulting_files
-        )
-        commit()
-
-    delete_file_folder(file)
-    delete_empty_parent_folders(dirname(file), volume_folder)
-
-    return resulting_files
+    return _extract_archive_to_library(file, volume_id, extract_rar)
 
 
 # region CBR

@@ -167,14 +167,14 @@
 						<th><label for="convert-input">Convert/Extract <br>Downloaded Files</label></th>
 						<td>
 							<input type="checkbox" id="convert-input">
-							<p>After a file is downloaded, automatically convert it (if a format preference is set) and/or extract its contents (if it's an archive and the setting below is enabled).</p>
+							<p>After a file is downloaded, automatically convert it to the format you prefer (if a format preference is set). This changes the format of files, so leave it off if you want to keep them as they are.</p>
 						</td>
 					</tr>
 					<tr>
 						<th><label for="extract-input">Extract archives <br>containing issues</label></th>
 						<td>
 							<input type="checkbox" id="extract-input">
-							<p>If an archive file has (most often multiple) complete issues inside, then extract the files inside and convert those issue files following the format preference.</p>
+							<p>If a downloaded .zip or .rar has complete issues inside (CBZ, CBR or PDF files), take the issues out and file them in the library. This works by itself, without the setting above, and never changes the format of a file. The archive is checked first, nothing in your library is overwritten, and the archive is only deleted once its issues are in the library.</p>
 						</td>
 					</tr>
 				</tbody>
