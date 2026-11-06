@@ -28,6 +28,7 @@ class Base(unittest.TestCase):
 
     def zip(self, name, members):
         path = os.path.join(self.dir, name)
+        os.makedirs(os.path.dirname(path), exist_ok=True)
         with ZipFile(path, 'w', ZIP_DEFLATED) as zf:
             for member, data in members.items():
                 zf.writestr(member, data)

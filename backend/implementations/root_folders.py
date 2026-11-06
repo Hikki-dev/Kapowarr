@@ -28,6 +28,9 @@ def make_missing_folder(folder: str) -> None:
     Raises:
         FolderNotFound: The folder above does not exist, or the name is not usable.
     """
+    if not folder.strip():
+        raise FolderNotFound(folder)
+
     folder = abspath(folder)
     name = basename(folder)
     if (
