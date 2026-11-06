@@ -180,6 +180,17 @@ function spinButton(task_string) {
 
 	icon.src = button_info.loading_icon;
 	icon.classList.add('spinning');
+
+	// Make it obvious that work is going on: a highlighted button that says so
+	button_info.button.classList.add('busy');
+	button_info.button.setAttribute('aria-busy', 'true');
+	const label = button_info.button.querySelector('p');
+	if (label && !label.dataset.idle) {
+		label.dataset.idle = label.innerText;
+		label.innerText = label.dataset.idle.replace(/^Update All$/, 'Updating...')
+			.replace(/^Search Monitored$/, 'Searching...')
+			.replace(/^Refresh & Scan$/, 'Refreshing...');
+	};
 };
 
 function unspinButton(task_string) {
@@ -191,6 +202,14 @@ function unspinButton(task_string) {
 
 	icon.src = button_info.icon;
 	icon.classList.remove('spinning');
+
+	button_info.button.classList.remove('busy');
+	button_info.button.removeAttribute('aria-busy');
+	const label = button_info.button.querySelector('p');
+	if (label && label.dataset.idle) {
+		label.innerText = label.dataset.idle;
+		delete label.dataset.idle;
+	};
 };
 
 function fillTaskQueue(api_key) {

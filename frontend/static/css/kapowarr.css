@@ -811,3 +811,16 @@ main > div:has(#about-table) section:first-of-type h2 { margin-top: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation-duration: .001ms !important; } }
+
+/* ---------- A button whose task is running ---------- */
+.tool-bar button.busy {
+	color: var(--accent-text-color);
+	background-color: var(--accent-color);
+	border-radius: var(--radius);
+	cursor: progress;
+}
+.tool-bar button.busy img { filter: brightness(0) !important; opacity: 1 !important; }
+.tool-bar button.busy .spinning, .busy img.spinning { animation: spin-element 1s linear infinite; }
+@media (prefers-reduced-motion: reduce) {
+	.tool-bar button.busy .spinning, .busy img.spinning { animation-duration: 3s; }
+}
