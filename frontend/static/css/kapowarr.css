@@ -2,43 +2,46 @@
  * Kapowarr interface skin.
  * Loaded after every other stylesheet. It re-skins the existing markup, so no
  * feature or element moves. Type: Roboto. Icons: Material Symbols Sharp (one
- * set, see static/img/ui). Spacing: 4px steps. Gold (#ebc700) marks only the
+ * set, see static/img/ui). Spacing: 4px steps. Yellow (#ffc400) marks the
  * current page, the main action and "monitored".
  */
 
 :root {
-	/* Light: paper-white surfaces, ink text, one cool-slate family for every neutral. */
+	/* Light: a bright paper page, ink text, a royal-blue sidebar, and four vivid colours with fixed jobs:
+	   blue = have it, orange = partly there, yellow = the main action and "not out yet", red = missing. */
 	--light-color: #ffffff;
-	--off-light-color: #f4f6f9;
-	--dark-hover-color: #eaeef3;
-	--mid-color: #dde2e9;
-	--darker-color: #55606f;
-	--dark-color: #19202a;
-	--gray-color: #1b212b;
+	--off-light-color: #f5f6fb;
+	--dark-hover-color: #e9edfa;
+	--mid-color: #d9deef;
+	--darker-color: #4d557a;
+	--dark-color: #141833;
+	--gray-color: #1c2250;
 
-	--accent-color: #f2c200;
-	--accent-text-color: #19202a;
-	--success-color: #1b8a4b;
-	--error-color: #c8323f;
-	--warning-color: #b86e00;
-	--info-color: #1f64d6;
+	--accent-color: #ffc400;
+	--accent-text-color: #141833;
+	--success-color: #1f55e0;
+	--error-color: #d1182b;
+	--warning-color: #c24a00;
+	--upcoming-color: #8a6200;
+	--info-color: #1f55e0;
 
 	--header-background-color: #ffffff;
-	--header-color: #19202a;
+	--header-color: #141833;
 	--tool-bar-color: #ffffff;
-	--background-color: #f4f6f9;
-	--surface-2: #eef1f5;
-	--hover-color: #eaeef3;
-	--border-color: #dde2e9;
-	--border-strong: #c5ccd6;
+	--background-color: #f5f6fb;
+	--surface-2: #edf0fb;
+	--hover-color: #e9edfa;
+	--border-color: #d9deef;
+	--border-strong: #bcc4e0;
 	--foreground-color: #ffffff;
-	--text-color: #19202a;
-	--dimmed-text-color: #55606f;
+	--text-color: #141833;
+	--dimmed-text-color: #4d557a;
 	--input-color: #ffffff;
 
-	--nav-background-color: #19202a;
-	--nav-color: #e8ecf2;
-	--nav-dim-color: #8b96a6;
+	--nav-background-color: #1a2db0;
+	--nav-brand-color: #121f8c;
+	--nav-color: #ffffff;
+	--nav-dim-color: #a9b8ff;
 	--volume-info-background-color: #ffffff;
 
 	--header-height: 72px;
@@ -48,36 +51,38 @@
 }
 
 :root.dark-mode {
-	/* Dark: the same slate family, deeper. Gold, green, amber, red and blue keep their meaning in both. */
-	--light-color: #e9edf3;
-	--off-light-color: #1b1f26;
-	--dark-hover-color: #2a303a;
-	--mid-color: #2f3640;
-	--darker-color: #a3acb9;
-	--dark-color: #14171c;
-	--gray-color: #1b1f26;
+	/* Dark: deep navy, never grey. The same four colours, lifted so they glow on the dark. */
+	--light-color: #eef1ff;
+	--off-light-color: #131a3d;
+	--dark-hover-color: #1c2657;
+	--mid-color: #27316b;
+	--darker-color: #a7b1de;
+	--dark-color: #0b1026;
+	--gray-color: #131a3d;
 
-	--accent-text-color: #14171c;
-	--success-color: #3dbb6d;
-	--error-color: #ef5b6a;
-	--warning-color: #f0a62b;
-	--info-color: #5aa2ff;
+	--accent-text-color: #0b1026;
+	--success-color: #5b93ff;
+	--error-color: #ff5468;
+	--warning-color: #ff8a3d;
+	--upcoming-color: #ffd23f;
+	--info-color: #5b93ff;
 
-	--header-background-color: #1b1f26;
-	--header-color: #eceff3;
-	--tool-bar-color: #1b1f26;
-	--background-color: #14171c;
-	--surface-2: #232831;
-	--hover-color: #262c36;
-	--border-color: #2f3640;
-	--border-strong: #3d4654;
-	--foreground-color: #1b1f26;
-	--text-color: #eceff3;
-	--dimmed-text-color: #a3acb9;
-	--input-color: #14171c;
+	--header-background-color: #131a3d;
+	--header-color: #eef1ff;
+	--tool-bar-color: #131a3d;
+	--background-color: #0b1026;
+	--surface-2: #1a2350;
+	--hover-color: #1c2657;
+	--border-color: #27316b;
+	--border-strong: #3a4690;
+	--foreground-color: #131a3d;
+	--text-color: #eef1ff;
+	--dimmed-text-color: #a7b1de;
+	--input-color: #0b1026;
 
-	--nav-background-color: #0e1014;
-	--volume-info-background-color: #1b1f26;
+	--nav-background-color: #101a62;
+	--nav-brand-color: #0a1148;
+	--volume-info-background-color: #131a3d;
 }
 
 /* ---------- Base ---------- */
@@ -134,8 +139,8 @@ header {
 	flex: 0 0 var(--nav-width);
 	height: 100%;
 	padding: 0 20px;
-	background-color: var(--nav-background-color);
-	border-bottom: 1px solid rgba(255, 255, 255, .07);
+	background-color: var(--nav-brand-color);
+	border-bottom: 1px solid rgba(255, 255, 255, .12);
 	gap: 8px;
 	justify-content: flex-start;
 }
@@ -144,8 +149,13 @@ header {
 	width: auto;
 	display: flex;
 	align-items: center;
+	gap: 12px;
+	color: #ffffff;
+	font-size: 21px;
+	font-weight: 700;
+	letter-spacing: .01em;
 }
-.menu-title-container > a.brand img { width: 60px; height: 60px; }
+.menu-title-container > a.brand img { width: 56px; height: 56px; flex: 0 0 56px; }
 
 .page-head {
 	min-width: 0;
@@ -180,43 +190,44 @@ header > form, header > .header-right { margin-left: auto; margin-right: 24px; }
 	overflow-y: auto;
 }
 nav a {
-	height: 36px;
+	height: 38px;
 	padding: 0 20px;
 	gap: 12px;
-	border-left: 3px solid transparent;
+	border-left: 4px solid transparent;
 	font-size: 14px;
-	color: #b8bec7;
+	color: #e6ebff;
 }
-nav a:hover { color: #fff; background-color: rgba(255, 255, 255, .05); }
+nav a:hover { color: #ffffff; background-color: rgba(255, 255, 255, .13); }
 nav a.current-nav {
-	background-color: rgba(235, 199, 0, .12);
-	border-left-color: var(--accent-color);
-	color: #fff;
-	font-weight: 500;
+	background-color: var(--accent-color);
+	border-left-color: #ff7a1a;
+	color: #141833;
+	font-weight: 700;
 }
-nav a.current-nav .ico { color: var(--accent-color); }
+nav a.current-nav .ico { color: #141833; }
 .nav-label {
 	padding: 18px 20px 6px;
 	font-size: 11px;
-	font-weight: 500;
-	letter-spacing: .08em;
+	font-weight: 700;
+	letter-spacing: .09em;
 	text-transform: uppercase;
-	color: var(--nav-dim-color);
+	color: #ffcf5c;
 }
 .nav-badge, #system-issues-badge {
 	margin-left: auto;
-	min-width: 18px;
-	height: 18px;
+	min-width: 20px;
+	height: 20px;
 	padding: 0 6px;
-	border-radius: 9px;
-	background-color: var(--accent-color);
-	color: var(--accent-text-color);
+	border-radius: 10px;
+	background-color: #ff3b4d;
+	color: #ffffff;
 	font-size: 11px;
 	font-weight: 700;
 	display: inline-flex;
 	justify-content: center;
 	align-items: center;
 }
+nav a.current-nav .nav-badge, nav a.current-nav #system-issues-badge { background-color: #d1182b; }
 #task-queue { padding: 16px 20px; font-size: 12px; color: var(--nav-dim-color); }
 
 /* ---------- Tool bar ---------- */
@@ -746,7 +757,8 @@ main > div:has(#about-table) section:first-of-type h2 { margin-top: 0; }
 
 @media (max-width: 720px) {
 	:root { --header-height: 56px; }
-	.menu-title-container > a.brand img { width: 40px; height: 40px; }
+	.menu-title-container > a.brand img { width: 40px; height: 40px; flex-basis: 40px; }
+	.menu-title-container > a.brand span { display: none; }
 	.menu-title-container { flex: 0 0 auto; padding: 0 12px; }
 	.page-hint { display: none; }
 	.page-title { font-size: 18px; }
@@ -784,11 +796,11 @@ main > div:has(#about-table) section:first-of-type h2 { margin-top: 0; }
 	}
 	.tabbar a { height: auto; padding: 0; border-left: 0; font-size: 11px; color: var(--dimmed-text-color); }
 	.tabbar a:hover { background: transparent; color: var(--text-color); }
-	.tabbar a.current-nav { background: transparent; border-left: 0; color: var(--text-color); }
+	.tabbar a.current-nav { background: transparent; border-left: 0; color: var(--text-color); font-weight: 700; }
 	.tabbar button { background: transparent; }
 	.tool-bar > select, #sort-button { width: auto; max-width: 6.5rem; padding: 0 6px; }
 	.tool-bar-container { overflow-x: auto; }
-	.tabbar .current-nav .ico { color: var(--accent-color); }
+	.tabbar .current-nav .ico { color: var(--info-color); }
 	.tabbar .ico { width: 24px; height: 24px; flex-basis: 24px; }
 }
 
