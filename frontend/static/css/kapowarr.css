@@ -775,7 +775,9 @@ main > div:has(#about-table) section:first-of-type h2 { margin-top: 0; }
 	.settings-container table select, .settings-container table input:not([type="checkbox"]) { width: 100%; }
 	.volume-mobile-description-container { padding: 16px; }
 	.issues-table { margin: 16px; width: calc(100% - 32px); }
-	#search-input { width: 8rem; }
+	header #search-input { width: 4.5rem; }
+	#search-container { margin-right: 8px; }
+	.page-head { flex: 0 0 auto; }
 	body { padding-bottom: 60px; }
 	.tabbar {
 		position: fixed;
