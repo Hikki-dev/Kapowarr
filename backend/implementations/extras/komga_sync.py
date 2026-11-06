@@ -100,3 +100,92 @@ def search_caught_up() -> List[int]:
             TaskHandler().add(AutoSearchVolume(row["volume_id"]))
             started.append(row["volume_id"])
     return started
+
+
+# region Series names
+def _tail(path: str, parts: int = 2) -> str:
+    return "/".join(path.replace("\\", "/").rstrip("/").split("/")[-parts:]).lower()
+
+
+def plan_name_fixes(
+    komga_series: Sequence[Dict[str, Any]],
+    volumes: Sequence[Dict[str, Any]]
+) -> List[Dict[str, Any]]:
+    """Which Komga series need a proper name or summary.
+
+    Komga names a series after the folder that holds its issues, so
+    `Kingdom Come/Volume 01 (1996)` becomes "Volume 01 (1996)". A volume folder
+    of Kapowarr is matched to the Komga series by its last two folder names.
+
+    Args:
+        komga_series: Series as Komga lists them.
+        volumes: Dicts with `folder`, `title` and `description` (plain text).
+
+    Returns:
+        A list of `{"id": ..., "patch": {...}}`, one per series to change.
+    """
+    by_tail = {_tail(v["folder"]): v for v in volumes}
+    plan: List[Dict[str, Any]] = []
+    for series in komga_series:
+        volume = by_tail.get(_tail(series.get("url", "")))
+        if volume is None:
+            continue
+
+        meta = series.get("metadata", {})
+        patch: Dict[str, Any] = {}
+        if (
+            meta.get("title", "").lower().startswith("volume ")
+            and not meta.get("titleLock")
+            and volume["title"]
+        ):
+            patch.update(
+                title=volume["title"],
+                titleSort=volume["title"],
+                titleLock=True
+            )
+
+        if not meta.get("summary") and volume.get("description"):
+            patch["summary"] = volume["description"]
+
+        if patch:
+            plan.append({"id": series["id"], "patch": patch})
+
+    return plan
+
+
+def fix_series_names() -> int:
+    "Give Komga's series their proper name and summary. Returns how many."
+    from os import environ
+
+    from requests import patch as http_patch
+
+    from backend.implementations.library_metadata import plain_text
+    from backend.internals.db import get_db
+
+    auth = notifications.komga_auth()
+    if auth is None:
+        return 0
+
+    base = environ["KAPOWARR_KOMGA_URL"].strip().rstrip("/")
+    volumes = [
+        {
+            "folder": row[0],
+            "title": row[1],
+            "description": plain_text(row[2])
+        }
+        for row in get_db().execute(
+            "SELECT folder, title, description FROM volumes;"
+        )
+    ]
+    done = 0
+    for item in plan_name_fixes(fetch_series(), volumes):
+        try:
+            http_patch(
+                f"{base}/api/v1/series/{item['id']}/metadata",
+                json=item["patch"], timeout=20, **auth
+            )
+            done += 1
+        except Exception:
+            continue
+
+    return done

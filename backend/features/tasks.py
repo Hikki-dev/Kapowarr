@@ -863,6 +863,13 @@ class UpdateAll(LibraryTask):
         except (CredentialInvalid, MetadataSourceNotWorking):
             pass
 
+        try:
+            from backend.implementations.extras.komga_sync import \
+                fix_series_names
+            fix_series_names()
+        except Exception:
+            LOGGER.exception("Fixing the series names in Komga failed")
+
         return
 
 

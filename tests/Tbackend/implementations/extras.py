@@ -392,3 +392,26 @@ class MetronTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class KomgaNameTests(unittest.TestCase):
+    def test_nested_volume_folders_get_the_series_name(self):
+        from backend.implementations.extras.komga_sync import plan_name_fixes
+        komga = [
+            {"id": "a", "url": "/data/Comics/Kingdom Come/Volume 01 (1996)", "metadata": {"title": "Volume 01 (1996)", "summary": ""}},
+            {"id": "b", "url": "/data/Comics/Absolute Batman", "metadata": {"title": "Absolute Batman", "summary": "x"}},
+            {"id": "c", "url": "/data/Comics/Other/Volume 01 (2000)", "metadata": {"title": "Volume 01 (2000)", "titleLock": True, "summary": "kept"}},
+            {"id": "d", "url": "/data/Comics/Unknown/Volume 02", "metadata": {"title": "Volume 02", "summary": ""}},
+        ]
+        volumes = [
+            {"folder": "/library/Comics/Kingdom Come/Volume 01 (1996)/", "title": "Kingdom Come", "description": "Four issues."},
+            {"folder": "/library/Comics/Absolute Batman", "title": "Absolute Batman", "description": "Dark."},
+            {"folder": "/library/Comics/Other/Volume 01 (2000)", "title": "Other", "description": ""},
+        ]
+        plan = {p["id"]: p["patch"] for p in plan_name_fixes(komga, volumes)}
+        self.assertEqual(plan["a"]["title"], "Kingdom Come")
+        self.assertEqual(plan["a"]["summary"], "Four issues.")
+        self.assertTrue(plan["a"]["titleLock"])
+        self.assertNotIn("b", plan)          # already named, already has a summary
+        self.assertNotIn("c", plan)          # title locked by the user, summary present
+        self.assertNotIn("d", plan)          # not a Kapowarr volume
