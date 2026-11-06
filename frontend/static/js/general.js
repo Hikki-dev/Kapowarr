@@ -396,6 +396,10 @@ const url_base = document.querySelector('#url_base').dataset.value;
 const volume_id = parseInt(window.location.pathname.split('/').at(-1)) || null;
 mapButtons(volume_id);
 
+// The browser storage must exist before anything reads it, or a first visit fails.
+setupLocalStorage();
+setupTheme();
+
 let socket;
 usingApiKey()
 .then(api_key => {
@@ -403,9 +407,6 @@ usingApiKey()
 	socket = connectToWebSocket(api_key);
 	initStatusBadge(api_key);
 });
-
-setupLocalStorage();
-setupTheme();
 
 document.querySelector('#toggle-nav').onclick = e =>
 	document.querySelector('#nav-bar').classList.toggle('show-nav');
