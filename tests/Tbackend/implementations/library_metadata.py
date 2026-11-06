@@ -110,12 +110,29 @@ class EmbedTests(unittest.TestCase):
             self.assertEqual(zf.namelist().count('ComicInfo.xml'), 1)
             self.assertIn(b'The Lasso', zf.read('ComicInfo.xml'))
 
-    def test_foreign_comicinfo_is_respected(self):
-        foreign = b'<ComicInfo><Series>Mine</Series></ComicInfo>'
+    def test_foreign_comicinfo_is_merged_not_lost(self):
+        foreign = (b'<ComicInfo><Series>Absolute Wonder Woman </Series><Issue>1</Issue>'
+                   b'<Notes>Scraped from Amazon</Notes><writer>Kelly Thompson</writer>'
+                   b'<Penciller>Hayden Sherman</Penciller></ComicInfo>')
         cbz = make_cbz(os.path.join(self.dir, 'a.cbz'), {'1.jpg': b'x', 'ComicInfo.xml': foreign})
+        self.assertTrue(lm.embed_comicinfo(cbz, self.xml))
+        with ZipFile(cbz) as zf:
+            self.assertEqual(zf.namelist().count('ComicInfo.xml'), 1)
+            root = fromstring(zf.read('ComicInfo.xml'))
+        self.assertEqual(root.findtext('Series'), 'Absolute Wonder Woman')
+        self.assertEqual(root.findtext('Number'), '12')  # ours wins over the odd "Issue"
+        self.assertIsNone(root.find('Issue'))
+        self.assertEqual(root.findtext('Writer'), 'Kelly Thompson')  # kept, proper name
+        self.assertEqual(root.findtext('Penciller'), 'Hayden Sherman')
+        self.assertIn('Scraped from Amazon', root.findtext('Notes'))
+        self.assertIn(lm.MARKER, root.findtext('Notes'))
+        self.assertFalse(lm.embed_comicinfo(cbz, self.xml))  # stable on the second run
+
+    def test_unreadable_foreign_comicinfo_is_left_alone(self):
+        cbz = make_cbz(os.path.join(self.dir, 'a.cbz'), {'1.jpg': b'x', 'ComicInfo.xml': b'<<not xml'})
         self.assertFalse(lm.embed_comicinfo(cbz, self.xml))
         with ZipFile(cbz) as zf:
-            self.assertEqual(zf.read('ComicInfo.xml'), foreign)
+            self.assertEqual(zf.read('ComicInfo.xml'), b'<<not xml')
 
     def test_other_formats_and_broken_files_are_left_alone(self):
         for name, data in (('a.cbr', b'Rar!\x1a\x07\x00xx'), ('a.pdf', b'%PDF-1.7'), ('b.cbz', b'not a zip')):

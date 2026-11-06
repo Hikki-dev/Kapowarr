@@ -6,13 +6,12 @@ Sonarr and Radarr do for video.
 
 * Every CBZ gets a `ComicInfo.xml` (series, issue number, volume, title,
   summary, release date, publisher, link), built from what ComicVine told
-  Kapowarr. A file that already has a ComicInfo.xml from someone else is left
-  alone. CBR and PDF files cannot be changed without converting them, so they
+  Kapowarr. A ComicInfo.xml made by another tool is combined with ours. CBR and PDF files cannot be changed without converting them, so they
   are matched by their file name.
 * The series folder gets a `series.json` (Mylar format, which Komga reads for
   the series title, summary, publisher, status and age rating) and a cover.
 
-Nothing is ever overwritten that is not ours, a CBZ is rewritten through a
+Another tool's ComicInfo.xml is combined with ours (its extra details are kept), a CBZ is rewritten through a
 temporary file (so a crash leaves the original), and the file date is kept.
 """
 
@@ -24,7 +23,8 @@ from os.path import basename, dirname, exists, getsize, isdir, join, relpath, sp
 from re import sub
 from shutil import disk_usage
 from typing import Dict, List, Optional, Union
-from xml.etree.ElementTree import Element, SubElement, tostring
+from xml.etree.ElementTree import (Element, ParseError, SubElement, fromstring,
+                                   tostring)
 from zipfile import BadZipFile, ZipFile, is_zipfile
 
 from backend.base.definitions import IssueData, VolumeData
@@ -34,6 +34,18 @@ MARKER = 'Tagged by Kapowarr'
 SPARE_BYTES = 1024 ** 3
 COVER_NAMES = ('cover.jpg', 'cover.jpeg', 'cover.png', 'cover.webp')
 MAX_SUMMARY = 4000
+KNOWN_TAGS = (
+    'Title', 'Series', 'Number', 'Count', 'Volume', 'AlternateSeries',
+    'AlternateNumber', 'AlternateCount', 'Summary', 'Notes', 'Year', 'Month',
+    'Day', 'Writer', 'Penciller', 'Inker', 'Colorist', 'Letterer',
+    'CoverArtist', 'Editor', 'Translator', 'Publisher', 'Imprint', 'Genre',
+    'Tags', 'Web', 'PageCount', 'LanguageISO', 'Format', 'BlackAndWhite',
+    'Manga', 'Characters', 'Teams', 'Locations', 'ScanInformation',
+    'StoryArc', 'StoryArcNumber', 'SeriesGroup', 'AgeRating', 'GTIN'
+)
+CANONICAL = {t.lower(): t for t in KNOWN_TAGS}
+CANONICAL['issue'] = 'Number'
+"Names other tools use for the ComicInfo fields, mapped to the proper ones"
 
 
 def plain_text(html: Union[str, None]) -> str:
@@ -128,6 +140,43 @@ def series_json(vd: VolumeData, total_issues: int, cover_name: str) -> bytes:
     return dumps(doc, indent=2, ensure_ascii=False).encode('utf-8')
 
 
+def merge_comicinfo(existing: bytes, ours: bytes) -> Optional[bytes]:
+    """Combine a ComicInfo.xml made by another tool with ours. The details
+    ComicVine gave us win; everything else the other file knew (writers,
+    artists, characters, ...) is kept, under the proper field names.
+
+    Returns:
+        Optional[bytes]: The combined XML, or `None` if the old one cannot be read.
+    """
+    try:
+        old = fromstring(existing)
+        new = fromstring(ours)
+    except ParseError:
+        return None
+
+    fields: Dict[str, str] = {}
+    for child in old:
+        name = CANONICAL.get(str(child.tag).lower())
+        text = (child.text or '').strip()
+        if name and text:
+            fields[name] = text
+
+    old_notes = fields.get('Notes', '')
+    for child in new:
+        if child.text:
+            fields[child.tag] = child.text
+
+    if old_notes and MARKER not in old_notes:
+        fields['Notes'] = f"{old_notes}; {fields['Notes']}"
+
+    root = Element('ComicInfo')
+    for tag in KNOWN_TAGS:
+        if tag in fields:
+            SubElement(root, tag).text = fields[tag]
+
+    return b'<?xml version="1.0" encoding="utf-8"?>\n' + tostring(root, 'utf-8')
+
+
 # region CBZ
 def _has_comicinfo(names: List[str]) -> Optional[str]:
     for name in names:
@@ -157,8 +206,11 @@ def embed_comicinfo(cbz: str, xml: bytes) -> bool:
             existing = _has_comicinfo(names)
             if existing is not None:
                 current = src.read(existing)
-                if MARKER.encode() not in current:
-                    return False  # Someone else's metadata: respect it
+                # Keep what the file already knew (ours or another tool's),
+                # and put the ComicVine details on top
+                xml = merge_comicinfo(current, xml)
+                if xml is None:
+                    return False  # Not readable: leave it alone
 
                 if current == xml:
                     return False  # Already up to date
