@@ -166,8 +166,12 @@ def merge_comicinfo(existing: bytes, ours: bytes) -> Optional[bytes]:
         if child.text:
             fields[child.tag] = child.text
 
-    if old_notes and MARKER not in old_notes:
-        fields['Notes'] = f"{old_notes}; {fields['Notes']}"
+    if old_notes and 'Notes' in fields:
+        # Keep the other tool's note, with ours after it (once)
+        fields['Notes'] = (
+            old_notes if MARKER in old_notes
+            else f"{old_notes}; {fields['Notes']}"
+        )
 
     root = Element('ComicInfo')
     for tag in KNOWN_TAGS:
