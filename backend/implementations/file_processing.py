@@ -7,6 +7,7 @@ Processing/Altering individual files with permissions, ownership, file date, etc
 from typing import List, Union
 
 from backend.base.definitions import FileDate
+from backend.base.logging import LOGGER
 from backend.base.files import (set_file_date, set_volume_folder_owner_group,
                                 set_volume_folder_permissions)
 from backend.implementations.root_folders import RootFolders
@@ -142,6 +143,13 @@ def mass_process_files(
             that are in the list.
             Defaults to None.
     """
+    try:
+        from backend.implementations.library_metadata import \
+            mass_write_metadata
+        mass_write_metadata(volume_id, filepath_filter)
+    except Exception:
+        LOGGER.exception("Writing the metadata failed")
+
     mass_set_file_date(volume_id, issue_id, filepath_filter)
     mass_set_permissions(volume_id)
     mass_set_ownership(volume_id)

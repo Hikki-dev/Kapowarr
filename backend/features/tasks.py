@@ -717,6 +717,13 @@ class RefreshAndScanVolume(Task):
         except (CredentialInvalid, MetadataSourceNotWorking):
             pass
 
+        try:
+            from backend.implementations.library_metadata import \
+                mass_write_metadata
+            mass_write_metadata(self._volume_id)
+        except Exception:
+            LOGGER.exception("Writing the metadata failed")
+
         return
 
 

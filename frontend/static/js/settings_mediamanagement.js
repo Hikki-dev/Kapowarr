@@ -16,7 +16,8 @@ const inputs = {
 	'chmod_folder': document.querySelector('#chmod-folder-input'),
 	'chown_group': document.querySelector('#chown-group-input'),
 	'convert_input': document.querySelector('#convert-input'),
-	'extract_input': document.querySelector('#extract-input')
+	'extract_input': document.querySelector('#extract-input'),
+	'metadata_input': document.querySelector('#metadata-input')
 };
 
 //
@@ -43,6 +44,7 @@ function fillSettings(api_key) {
 		inputs.chown_group.value = json.result.chown_group;
 		inputs.convert_input.checked = json.result.convert;
 		inputs.extract_input.checked = json.result.extract_issue_ranges;
+		inputs.metadata_input.checked = json.result.write_metadata;
 
 		fillConvert(api_key, json.result.format_preference);
 	});
@@ -76,6 +78,7 @@ function saveSettings(api_key) {
 		'chown_group': inputs.chown_group.value,
 		'convert': inputs.convert_input.checked,
 		'extract_issue_ranges': inputs.extract_input.checked,
+		'write_metadata': inputs.metadata_input.checked,
 		'format_preference': convert_preference,
 	};
 	sendAPI('PUT', '/settings', api_key, {}, data)
