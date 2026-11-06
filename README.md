@@ -4,6 +4,12 @@
 [![Licence: GPL-3.0](https://img.shields.io/github/license/Hikki-dev/Kapowarr)](LICENSE)
 [![Docker](https://img.shields.io/badge/docker-ghcr.io%2Fhikki--dev%2Fkapowarr--fork-2f86d6)](https://github.com/Hikki-dev/Kapowarr/pkgs/container/kapowarr-fork)
 [![Based on Kapowarr](https://img.shields.io/badge/based%20on-Kapowarr-eac700)](https://github.com/Casvt/Kapowarr)
+[![CodeQL](https://github.com/Hikki-dev/Kapowarr/actions/workflows/codeql.yml/badge.svg)](https://github.com/Hikki-dev/Kapowarr/actions/workflows/codeql.yml)
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/Hikki-dev/Kapowarr/badge)](https://scorecard.dev/viewer/?uri=github.com/Hikki-dev/Kapowarr)
+[![Last commit](https://img.shields.io/github/last-commit/Hikki-dev/Kapowarr)](https://github.com/Hikki-dev/Kapowarr/commits/main)
+[![Python 3.13](https://img.shields.io/badge/python-3.13-3776ab?logo=python&logoColor=white)](Dockerfile)
+[![Works with Komga](https://img.shields.io/badge/works%20with-Komga-5c6bc0)](docs/Metadata%20for%20Komga.md)
+[![Safe downloads](https://img.shields.io/badge/downloads-checked%20for%20programs-2e7d32)](docs/Safe%20downloads.md)
 
 Build a comic library and keep it up to date, from every place comics can be found.
 
